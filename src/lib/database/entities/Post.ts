@@ -4,7 +4,7 @@ import { v4 } from 'uuid';
 @Entity()
 export default class Post {
     @PrimaryKey()
-    id!: string = v4()
+    id: string = v4()
 
     @Property()
     title!: string

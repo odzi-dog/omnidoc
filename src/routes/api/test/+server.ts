@@ -1,6 +1,6 @@
 import { error } from '@sveltejs/kit';
 import { getDatabase } from '$lib/database';
-import Post from '$lib/entities/Post';
+import Post from '$lib/database/entities/Post';
  
 /** @type {import('./$types').RequestHandler} */
 export async function GET({ url }) {
