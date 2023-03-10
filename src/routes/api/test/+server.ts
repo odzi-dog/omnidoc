@@ -1,9 +1,9 @@
+import type { RequestHandler } from './$types';
 import { error } from '@sveltejs/kit';
 import { getDatabase } from '$lib/database';
 import Post from '$lib/database/entities/Post';
  
-/** @type {import('./$types').RequestHandler} */
-export async function GET({ url }) {
+const GET: RequestHandler = async function({ url }) {
     const min = Number(url.searchParams.get('min') ?? '0');
     const max = Number(url.searchParams.get('max') ?? '1');
    
@@ -19,3 +19,5 @@ export async function GET({ url }) {
     
     return new Response(String(random));
 };
+
+export { GET };
