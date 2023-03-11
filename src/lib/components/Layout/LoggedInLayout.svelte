@@ -7,7 +7,7 @@
     <Sidebar />
 
     <!-- Content -->
-    <main class="ml-4 w-full">
+    <main class="ml-4 w-full p-4">
         <slot />
     </main>
 </div>
