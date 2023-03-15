@@ -48,7 +48,7 @@ steps:
       token:
         from_secret: DRONE_TOKEN
       params:
-        - .env
+        - /drone/src/.env
       fork: true
       repositories:
         - internal/docs.odzi.dog
