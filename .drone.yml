@@ -1,0 +1,60 @@
+kind: pipeline
+type: docker
+name: build_image
+
+platform:
+  os: linux
+  arch: arm64
+
+steps:
+  - name: Get git commit tag
+    image: alpine
+    commands:
+      - apk add git
+      - git rev-parse --short HEAD > .tags
+      - cat .tags
+  - name: Build and push
+    image: plugins/docker
+    settings:
+      registry: git.odzi.dog
+      username:
+        from_secret: REGISTRY_USERNAME
+      password:
+        from_secret: REGISTRY_PASSWORD
+      repo: git.odzi.dog/omnidoc/web
+
+# ---
+# kind: pipeline
+# type: docker
+# name: deploy_production
+
+# platform:
+#   os: linux
+#   arch: arm64
+
+# steps:
+#   - name: Get git commit tag
+#     image: alpine
+#     commands:
+#       - apk add git
+#       - git config --global --add safe.directory '*'
+#       - git rev-parse --short HEAD > .tag
+#       - cat .tag
+#   - name: Upgrade our helm chart with new tag
+#     image: alpine/k8s:1.26.1
+#     environment:
+#       KUBECONFIG_DATA:
+#         from_secret: KUBECONFIG_DATA
+#     commands:
+#       - mkdir ~/.kube
+#       - echo $${KUBECONFIG_DATA} | base64 -d > ~/.kube/config
+#       - export KUBECONFIG=~/.kube/config
+#       - kubectl version
+      
+#       # Deploying our helm release with new tag value
+#       - export TAG=$(cat .tag)
+#       - "echo Installing with tag: $TAG"
+#       - helm upgrade odzi-auth ./.helm --set-string tag=$TAG --namespace odzi-dog --install
+
+# depends_on:
+#   - build_image
