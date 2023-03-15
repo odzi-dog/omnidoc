@@ -40,7 +40,7 @@ steps:
       - git config --global --add safe.directory '*'
       - git rev-parse --short HEAD > .tag
       - echo "TAG=$(cat .tag) > .env"
-      # - cat /drone/src/.env
+      - echo "$PWD"
   - name: Trigger internal/docs.odzi.dog pipeline
     image: plugins/downstream
     settings:
