@@ -39,15 +39,15 @@ steps:
       - apk add git
       - git config --global --add safe.directory '*'
       - git rev-parse --short HEAD > .tag
-      - cat .tag
-  - name: trigger  
+      - echo "TAG=$(cat .tag) > .env"
+  - name: Trigger internal/docs.odzi.dog pipeline
     image: plugins/downstream
     settings:
       server: https://drone.odzi.dog
       token:
         from_secret: DRONE_TOKEN
       params:
-        - TAG=(cat .tag)
+        - ./.env
       fork: true
       repositories:
         - internal/docs.odzi.dog
