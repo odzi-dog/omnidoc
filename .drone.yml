@@ -40,7 +40,7 @@ steps:
       - git config --global --add safe.directory '*'
       - git rev-parse --short HEAD > .tag
       - echo "TAG=$(cat .tag) > .env"
-      - cat /drone/src/.env
+      # - cat /drone/src/.env
   - name: Trigger internal/docs.odzi.dog pipeline
     image: plugins/downstream
     settings:
@@ -48,7 +48,7 @@ steps:
       token:
         from_secret: DRONE_TOKEN
       params:
-        - /drone/src/.env
+        - .env
       fork: true
       repositories:
         - internal/docs.odzi.dog
