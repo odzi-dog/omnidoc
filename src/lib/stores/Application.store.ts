@@ -1,16 +1,8 @@
 import type { Workspace } from "$lib/database/entities";
 import { writable } from "svelte/store";
 
-export type ApplicationStoreData = LoadedApplicationStore | UnloadedApplicationStore;
-
-interface LoadedApplicationStore {
-    isLoaded: true,
-
-    workspaces: Workspace[],
-};
-
-interface UnloadedApplicationStore {
-    isLoaded: false,
+export interface ApplicationStoreData {
+    workspaces: Workspace[] | null,
 };
 
 class StoreClass {
@@ -19,7 +11,7 @@ class StoreClass {
 
     constructor() {
         const { subscribe, update } = writable<ApplicationStoreData>({
-            isLoaded: false,
+            workspaces: null
         });
 
         this.subscribe = subscribe;
@@ -30,7 +22,21 @@ class StoreClass {
     // - fetch all available workspaces
     // - fetch current workspace's information
     public async initialize() {
-        return;
+        this.fetchWorkspaces();
+    };
+
+    private fetchWorkspaces() {
+        fetch(`/api/workspaces`, { credentials: 'include' })
+            .then((response) => response.json())
+            .then((response) => {
+                this._update((object) => {
+                    object.workspaces = response;
+                    return object;
+                });
+            })
+            .catch((error) => {
+                console.log("error:", error);
+            });
     };
 };
 

@@ -30,4 +30,4 @@ class StoreClass {
     };
 };
 
-export const CurrentWorksaceStore = new StoreClass();
+export const CurrentWorkspaceStore = new StoreClass();

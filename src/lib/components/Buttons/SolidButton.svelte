@@ -1,5 +1,5 @@
 <script lang="ts">
-    const additionalClassNames: String = "";
+    let additionalClassNames: String = "";
 
     export { additionalClassNames as class };
     export let attributes: any = null;
