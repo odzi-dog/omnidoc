@@ -33,22 +33,12 @@ platform:
   arch: arm64
 
 steps:
-  - name: Get git commit tag
-    image: alpine
-    commands:
-      - apk add git
-      - git config --global --add safe.directory '*'
-      - git rev-parse --short HEAD > .tag
-      - echo "TAG=$(cat .tag) > .env"
-      - echo "$PWD"
   - name: Trigger internal/docs.odzi.dog pipeline
     image: plugins/downstream
     settings:
       server: https://drone.odzi.dog
       token:
         from_secret: DRONE_TOKEN
-      params:
-        - /drone/src/.env
       fork: true
       repositories:
         - internal/docs.odzi.dog
