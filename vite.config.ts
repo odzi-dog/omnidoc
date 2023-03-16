@@ -10,5 +10,15 @@ export default defineConfig({
 		Icons({
 			compiler: 'svelte',
 		})
-	]
+	],
+	server: {
+		proxy: {
+			'/.ory': {
+				target: "https://focused-euler-uqf1ohys7f.projects.oryapis.com",
+				changeOrigin: true,
+				cookieDomainRewrite: "localhost",
+				rewrite: (path) => path.replace(/^\/.ory/, ''),
+			}
+		}
+	}
 });
