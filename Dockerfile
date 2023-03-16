@@ -21,6 +21,7 @@ WORKDIR /src
 
 COPY --from=builder /src/build .
 COPY --from=deps ./src/node_modules ./node_modules
+COPY ./migrations ./migrations
 COPY package.json .
 
 ENTRYPOINT [ "node", "index.js" ]
