@@ -55,7 +55,10 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
                 location: "/app"
             }
         });
-    } catch {
+    } catch(e) {
+        console.log("error:");
+        console.log(e);
+        
         throw error(500, {
             message: "Unknown session provided"
         });
