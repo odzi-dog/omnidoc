@@ -19,6 +19,8 @@ RUN npm install
 FROM node:18-alpine as runtime
 WORKDIR /src
 
+RUN apk add gcompat
+
 COPY --from=builder /src/build .
 COPY --from=deps ./src/node_modules ./node_modules
 COPY package.json .
