@@ -9,7 +9,6 @@
 		"skipLibCheck": true,
 		"sourceMap": true,
 		"strict": true,
-		"baseUrl": "src",
 
 		// Required by mikro-orm
 		"experimentalDecorators": true,

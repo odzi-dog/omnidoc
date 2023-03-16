@@ -1,4 +1,4 @@
-import type { Workspace } from "lib/database/entities";
+import type { Workspace } from "$lib/database/entities";
 import { writable } from "svelte/store";
 
 export type ApplicationStoreData = LoadedApplicationStore | UnloadedApplicationStore;

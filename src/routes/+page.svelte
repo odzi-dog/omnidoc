@@ -1,2 +1,16 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
+<script lang="ts">
+	import { goto } from "$app/navigation";
+	import { getUser } from "@lucia-auth/sveltekit/client";
+	import { onMount } from "svelte";
+
+    const user = getUser();
+
+    onMount(() => {
+        if ($user) {
+            goto("/app");
+        } else {
+            // Redirecting to login page
+            goto("/login");
+        };
+    });
+</script>

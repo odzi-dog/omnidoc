@@ -6,11 +6,10 @@
 	import LoggedInLayout from '$lib/components/Layout/LoggedInLayout.svelte';
 
 	handleSession(page);
-
-	const user = getUser();
+	const user = getUser(); 
 </script>
 
-{ #if $user == null }
+{ #if $user != null }
 	<LoggedInLayout>
 		<slot />
 	</LoggedInLayout>
