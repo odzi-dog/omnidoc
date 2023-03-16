@@ -1,10 +1,9 @@
 import { MikroORM } from '@mikro-orm/core';
 import { TextDocument, Workspace } from './entities';
-import { dev as isDev } from '$app/environment';
 
 const instance = await MikroORM.init({
     entities: [TextDocument, Workspace],
-    dbName: `${ isDev ? "" : "/data/" }data.sqlite3`,
+    dbName: `./data/data.sqlite3`,
     type: 'better-sqlite',
     migrations: {
         path: "migrations",
