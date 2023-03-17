@@ -10,10 +10,14 @@ export class Workspace {
     @Property()
     title!: string;
 
+    @Property({ nullable: true })
+    avatar?: string;
+
     @OneToMany(() => TextDocument, document => document.workspace)
     documents = new Collection<TextDocument>(this);
 
-    constructor(title: string) {
+    constructor(title: string, avatar?: string) {
         this.title = title;
+        this.avatar = avatar;
     };
 };

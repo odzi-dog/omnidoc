@@ -11,9 +11,16 @@
 	import { CurrentWorkspaceStore } from '$lib/stores/Application';
 	import { Placeholder } from '$lib/components/Loaders';
 	import WorkspaceChooser from './Sidebar/WorkspaceChooser.svelte';
+	import Avatar from '$lib/components/Images/Avatar.svelte';
+	import { getUser } from '@lucia-auth/sveltekit/client';
+
+    const user = getUser();
+
+    let additionalClassNames: string = "";
+    export { additionalClassNames as class };
 </script>
 
-<sidebar class="h-full flex flex-col bg-zinc-800 w-1/6 rounded-2xl p-1 pt-3 relative">
+<sidebar class="h-full flex flex-col bg-zinc-800 rounded-2xl p-1 pt-3 relative { additionalClassNames }">
     { #if $ApplicationStore.workspaces == null }
         <!-- Workspaces is loading -->
         <Placeholder class="w-full h-10" />
@@ -125,8 +132,8 @@
     <!-- Account -->
     <div class="flex items-center gap-3 p-3">
         <!-- Profile icon -->
-        <div class="rounded-full bg-red-500 w-9 h-9 mr-[auto]"></div>
-    
+        <Avatar seed={$user?.username} type="initials" class="w-9 h-9 mr-[auto]" />
+
         { #each [
             { icon: CarbonBookmark }, 
             { icon: CarbonGrid }

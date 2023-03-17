@@ -4,7 +4,9 @@
 /// <reference types="lucia-auth" />
 declare namespace Lucia {
 	type Auth = import("lib/auth").Auth;
-	type UserAttributes = unknown;
+	type UserAttributes = {
+		username: string;
+	};
 }
 
 declare global {

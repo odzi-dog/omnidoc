@@ -5,6 +5,13 @@ import { Adapter } from "./adapter";
 export const auth = lucia({
     adapter: Adapter,
     env: dev ? "DEV" : "PROD",
+
+    transformUserData: (userData) => {
+        return {
+            userId: userData.id,
+            username: userData.username,
+        };
+    },
 });
 
 export type Auth = typeof auth;

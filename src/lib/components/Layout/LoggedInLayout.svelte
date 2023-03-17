@@ -4,10 +4,10 @@
 
 <div class="w-full flex h-screen bg-zinc-900 p-2">
     <!-- Sidebar -->
-    <Sidebar />
+    <Sidebar class="w-1/6" />
 
     <!-- Content -->
-    <main class="ml-4 w-full p-4">
+    <main class="ml-4 w-5/6 p-4">
         <slot />
     </main>
 </div>

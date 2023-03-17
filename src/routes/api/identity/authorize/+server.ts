@@ -34,7 +34,9 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
                     providerUserId: identity.id,
                     password: null
                 },
-                attributes: {}
+                attributes: {
+                    username: (identity.verifiable_addresses ? identity.verifiable_addresses[0].value : null) ?? "User"
+                }
             });    
         };
 

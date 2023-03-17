@@ -18,14 +18,29 @@ class StoreClass {
     public fetchById(workspaceId: string) {
         return new Promise((resolve, reject) => {
             fetch(`/api/workspace/${ workspaceId }`, { credentials: 'include' })
+                .then((response) => {
+                    if (response.status != 200) {
+                        // todo
+                        // better errors
+                        throw new Error("Not found");
+                    };
+                    
+                    return response;
+                })
                 .then((response) => response.json())
                 .then((response: Workspace) => {
                     this._update(() => response);
                 })
                 .catch((error) => {
+                    // todo
+                    // better errors
                     reject(error);
                 });
         });
+    };
+
+    public clear() {
+        this._update(() => (null));
     };
 };
 
