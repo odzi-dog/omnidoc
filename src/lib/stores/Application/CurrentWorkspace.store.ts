@@ -20,7 +20,6 @@ class StoreClass {
             fetch(`/api/workspace/${ workspaceId }`, { credentials: 'include' })
                 .then((response) => response.json())
                 .then((response: Workspace) => {
-                    console.log("fetchWorkspaceById response:", response);
                     this._update(() => response);
                 })
                 .catch((error) => {
