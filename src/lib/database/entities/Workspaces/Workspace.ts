@@ -1,6 +1,7 @@
 import { Collection, Entity, OneToMany, PrimaryKey, Property } from "@mikro-orm/core";
-import { TextDocument } from "../Documents/Document";
+import { WorkspaceDocument } from "../Documents/Document";
 import { v4 } from "uuid";
+import { WorkspaceFolder } from "../Documents";
 
 @Entity()
 export class Workspace {
@@ -13,8 +14,11 @@ export class Workspace {
     @Property({ nullable: true })
     avatar?: string;
 
-    @OneToMany(() => TextDocument, document => document.workspace)
-    documents = new Collection<TextDocument>(this);
+    @OneToMany(() => WorkspaceFolder, folder => folder.workspace)
+    folders = new Collection<WorkspaceFolder>(this);
+
+    @OneToMany(() => WorkspaceDocument, document => document.workspace)
+    documents = new Collection<WorkspaceDocument>(this);
 
     constructor(title: string, avatar?: string) {
         this.title = title;

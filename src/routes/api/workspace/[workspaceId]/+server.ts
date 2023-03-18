@@ -5,8 +5,8 @@ import type { RequestHandler } from "./$types";
 
 export const GET: RequestHandler = async ({ params: { workspaceId } }) => {
     const workspace = await getDatabase().findOne(Workspace, {
-        id: workspaceId
-    });
+        id: workspaceId,
+    }, { populate: ["documents", "folders"] });
 
     if (!workspace) throw error(404, "Workspace not found");
 

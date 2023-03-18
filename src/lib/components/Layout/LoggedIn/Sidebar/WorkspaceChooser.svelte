@@ -29,26 +29,30 @@
         </div>
     { /if }
 
-    <PopoverButton class="relative w-full flex items-center rounded-2xl hover:bg-zinc-700 transition px-3 py-1.5">
-        <!-- Icon -->
-        { #if $CurrentWorkspaceStore == null }
-            <CarbonGrid class="w-5 h-5 my-2 text-gray-300" />
-        { :else }
-            <Avatar src={$CurrentWorkspaceStore.avatar} seed={$CurrentWorkspaceStore.id} />
-        { /if }
+    { #key $CurrentWorkspaceStore?.id }
+        <div in:fade>
+            <PopoverButton class="relative w-full flex items-center rounded-2xl hover:bg-zinc-700 transition px-3 py-1.5">
+                <!-- Icon -->
+                { #if $CurrentWorkspaceStore == null }
+                    <CarbonGrid class="w-5 h-5 my-2 text-gray-300" />
+                { :else }
+                    <Avatar src={$CurrentWorkspaceStore.avatar} seed={$CurrentWorkspaceStore.id} />
+                { /if }
 
-        <!-- Texts -->
-        <div class="mr-[auto] text-white text-left ml-2 w-2/3">
-            <h1 class="text-sm truncate">{ $CurrentWorkspaceStore?.title ?? "Workspaces" }</h1>
+                <!-- Texts -->
+                <div class="mr-[auto] text-white text-left ml-2 w-2/3">
+                    <h1 class="text-sm truncate">{ $CurrentWorkspaceStore?.title ?? "Workspaces" }</h1>
 
-            { #if $CurrentWorkspaceStore != null }
-                <p class="text-xs text-gray-400 truncate">1 new change</p>
-            { /if }
+                    { #if $CurrentWorkspaceStore != null }
+                        <p class="text-xs text-gray-400 truncate">1 new change</p>
+                    { /if }
+                </div>
+
+                <!-- Choose other icon -->
+                <CarbonChevronSort class="w-5 h-5 text-gray-300" />
+            </PopoverButton>
         </div>
-
-        <!-- Choose other icon -->
-        <CarbonChevronSort class="w-5 h-5 text-gray-300" />
-    </PopoverButton>
+    { /key }
 
     { #if open }
         <div transition:fade={{ duration: 100 }}>
