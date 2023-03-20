@@ -12,6 +12,7 @@
 	import { AbstractExplorer } from '$lib/components/AbstractExplorer';
 	import Folder from './Sidebar/Folder.svelte';
 	import Document from './Sidebar/Document.svelte';
+	import { page } from '$app/stores';
 
     const user = getUser();
 
@@ -29,7 +30,7 @@
 
     <!-- Content -->
     <div class="relative flex-grow mt-4 p-1 overflow-y-scroll">
-        { #if $ApplicationStore.workspaces == null || $CurrentWorkspaceStore == null }
+        { #if $ApplicationStore.workspaces == null || ($page.url.pathname.startsWith("/app/workspace/") && $CurrentWorkspaceStore == null) }
             <div class="flex items-center mt-4 gap-4">
                 <Placeholder class="w-2/3 h-5" />
                 <Placeholder class="w-1/3 h-5" />
