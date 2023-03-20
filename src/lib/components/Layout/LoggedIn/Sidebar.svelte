@@ -9,16 +9,9 @@
 	import WorkspaceChooser from './Sidebar/WorkspaceChooser.svelte';
 	import Avatar from '$lib/components/Images/Avatar.svelte';
 	import { getUser } from '@lucia-auth/sveltekit/client';
-	import type { WorkspaceDocument } from '$lib/database/entities';
-	import Document from './Sidebar/Document.svelte';
+	import { AbstractExplorer } from '$lib/components/Explorer/AbstractExplorer';
 	import Folder from './Sidebar/Folder.svelte';
-	import { fade } from 'svelte/transition';
-
-    function documentTypeGuard(untyped: any): WorkspaceDocument {
-        // todo
-        // check if it really is WorkspaceDocument type
-        return untyped as WorkspaceDocument;
-    };
+	import Document from './Sidebar/Document.svelte';
 
     const user = getUser();
 
@@ -74,22 +67,7 @@
             </div>
         { :else }
             { #if $CurrentWorkspaceStore != null }
-                <div in:fade class="w-full overflow-hidden">
-                    <!-- Root folders (circular) -->
-                    <!-- .filter(([key, value]) => key != null) does not work(( -->
-                    { #each [...$CurrentWorkspaceStore.entities] as [folder, contents] }
-                        { #if folder != null }
-                            <Folder {folder} {contents} />
-                        { /if }
-                    { /each }
-
-                    <!-- Root documents -->
-                    { #each $CurrentWorkspaceStore.entities.get(null) ?? [] as untypedDocument }
-                        { @const document = documentTypeGuard(untypedDocument) }
-
-                        <Document {document} />
-                    { /each }
-                </div>
+                <AbstractExplorer entities={ $CurrentWorkspaceStore.entities } folderComponent={Folder} documentComponent={Document} />
             { /if }
         { /if }
     </div>

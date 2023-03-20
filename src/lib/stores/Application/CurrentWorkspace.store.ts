@@ -10,9 +10,9 @@ interface Folder extends FlatWorkspaceFolder {
     type: EntityType,
 };
 
-export type CircularEntity = Document | Map<Folder, CircularEntity>;
+export type CircularEntity = Document | Map<Folder, Array<CircularEntity>>;
 
-interface MappedWorkspace extends Omit<FlatWorkspace, "documents" | "folders"> {
+export interface MappedWorkspace extends Omit<FlatWorkspace, "documents" | "folders"> {
     entities: Map<Folder | null, Array<CircularEntity>>
 };
 
@@ -48,6 +48,7 @@ class StoreClass {
                         ...response,
                         entities: this.mapFoldersAndDocuments(response.documents, response.folders),
                     }));
+                    resolve(true);
                 })
                 .catch((error) => {
                     // todo
