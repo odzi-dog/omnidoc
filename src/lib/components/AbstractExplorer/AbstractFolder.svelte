@@ -1,9 +1,14 @@
 <script lang="ts">
 	import type { FlatWorkspaceDocument } from "$lib/database/entities";
-	import type { CircularEntity } from "$lib/stores/Application";
-	import { onMount } from "svelte";
-    
+	import { getContext, onMount } from "svelte";
+    import type { Document, Folder } from "$lib/stores/Application";
+	import type { AbstractFolderContents } from "./AbstractFolderTypes";
+    import EntityType from "$lib/database/entities/EntityType";
+	import { ABSTRACT_EXPLORER_CONTEXT_KEY, type AbstractExplorerContext } from "./AbstractExplorerContext";
+
     let isChildrenShown = true;
+
+    const { getFolderContents } = getContext<AbstractExplorerContext>(ABSTRACT_EXPLORER_CONTEXT_KEY);
 
     function documentTypedGuard(untyped: any) {
         return untyped as FlatWorkspaceDocument;
@@ -23,7 +28,7 @@
     export let id: string = "";
     export let folderComponent: any;
     export let documentComponent: any;
-    export let contents: Array<CircularEntity> | undefined = [];
+    export let contents: AbstractFolderContents = [];
 </script>
 
 <div class="w-full my-1">
@@ -31,17 +36,13 @@
     <slot name="header" {setIsShown} />
 
     <!-- Children -->
-    { #if contents && isChildrenShown }
+    { #if contents.length > 0 && isChildrenShown }
         <div class="pl-5">
             <div class="my-1">
                 { #each contents as entity }
-                    { #if entity instanceof Map }
-                        { #each [...entity] as [folder, contents] }
-                            { #if folder != null }
-                                <svelte:component this={folderComponent} {folder} {contents} />
-                            { /if }
-                        { /each }
-                    { :else if entity instanceof Object }
+                    { #if entity.type == EntityType.FOLDER }
+                        <svelte:component this={folderComponent} folder={entity} contents={getFolderContents(entity)} />
+                    { :else if entity.type == EntityType.DOCUMENT }
                         { @const document = documentTypedGuard(entity) }
 
                         <svelte:component this={documentComponent} {document} />

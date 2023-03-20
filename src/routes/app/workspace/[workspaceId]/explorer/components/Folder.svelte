@@ -4,16 +4,22 @@
 	import { getContext } from "svelte";
     import CarbonOverflowMenuVertical from '~icons/carbon/overflow-menu-vertical';
 	import { Folder, Document } from ".";
-	import { AbstractFolder } from "$lib/components/AbstractExplorer";
+	import { AbstractFolder, type AbstractFolderContents } from "$lib/components/AbstractExplorer";
 	import { EXPLORER_CONTEXT_KEY, type ExplorerContext } from "../_context";
 
     const { updateCurrentFolder } = getContext<ExplorerContext>(EXPLORER_CONTEXT_KEY);
+
+    function selectThisFolder() {
+        updateCurrentFolder(folder.id);
+    };
 
     export let folder: FlatWorkspaceFolder;
 </script>
 
 <AbstractFolder id={folder.id} folderComponent={Folder} documentComponent={Document}>
-    <div slot="header" class="w-full h-full group cursor-pointer">
+    <button on:click={() => {
+        selectThisFolder();
+    }} slot="header" class="w-full h-full group cursor-pointer">
         <!-- Folder visual header -->
         <div class="w-full flex">
             <span class="h-4 w-1/3 bg-zinc-800 group-hover:bg-zinc-700 transition rounded-t-2xl"></span>
@@ -33,10 +39,10 @@
             </div>
 
             <!-- Text -->
-            <div class="mt-4">
+            <div class="text-left mt-4">
                 <h1 class="text-md text-white">{ folder.title }</h1>
                 <p class="text-sm text-gray-300">100 documents</p>
             </div>
         </div>
-    </div>
+    </button>
 </AbstractFolder>

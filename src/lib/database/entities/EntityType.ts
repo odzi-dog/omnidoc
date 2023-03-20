@@ -1,6 +1,6 @@
 export enum EntityType {
-    FOLDER,
-    DOCUMENT,
+    FOLDER = "FOLDER",
+    DOCUMENT = "DOCUMENT",
 };
 
 export default EntityType;

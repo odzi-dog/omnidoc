@@ -67,7 +67,14 @@
             </div>
         { :else }
             { #if $CurrentWorkspaceStore != null }
-                <AbstractExplorer entities={ $CurrentWorkspaceStore.entities } folderComponent={Folder} documentComponent={Document} />
+                <AbstractExplorer
+                    rootEntities={ $CurrentWorkspaceStore.rootEntities }
+                    entities={ $CurrentWorkspaceStore.entities } 
+                    hierarchy={ $CurrentWorkspaceStore.hierarchy }
+
+                    folderComponent={Folder} 
+                    documentComponent={Document} 
+                />
             { /if }
         { /if }
     </div>

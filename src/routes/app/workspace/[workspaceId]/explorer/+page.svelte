@@ -3,9 +3,11 @@
 	import { setContext } from 'svelte';
 	import { AbstractExplorer } from '$lib/components/AbstractExplorer';
 	import { EXPLORER_CONTEXT_KEY, type ExplorerContext } from './_context';
-    import { CurrentWorkspaceStore } from "$lib/stores/Application";
+    import { CurrentWorkspaceStore, type MappedWorkspace } from "$lib/stores/Application";
 	import { Folder, Document } from './components';
 	import Placeholder from '$lib/components/Loaders/Placeholder.svelte';
+
+    $: rootEntities = $CurrentWorkspaceStore?.rootEntities ?? [];
 
     // Context variables
     let currentFolder: ExplorerContext["currentFolder"] = null;
@@ -22,6 +24,9 @@
         return {
             updateCurrentFolder(folderId: string) {
                 currentFolder = folderId;
+
+                // Getting this folder contents from our MappedWorkspace store
+
                 updateContext();
             },
         }
@@ -116,5 +121,13 @@
         { /each }
     </div>
 { :else }
-    <AbstractExplorer entities={$CurrentWorkspaceStore?.entities} folderComponent={Folder} documentComponent={Document} class="grid grid-cols-5 gap-4 mt-8" />
+    <AbstractExplorer
+        rootEntities={rootEntities}
+        entities={ $CurrentWorkspaceStore.entities }
+        hierarchy={ $CurrentWorkspaceStore.hierarchy }
+    
+        folderComponent={Folder} 
+        documentComponent={Document} 
+        class="grid grid-cols-5 gap-4 mt-8"
+    />
 { /if }

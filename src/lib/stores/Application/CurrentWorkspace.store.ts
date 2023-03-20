@@ -2,18 +2,23 @@ import { writable } from "svelte/store";
 import type { FlatWorkspaceDocument, FlatWorkspaceFolder, FlatWorkspace } from "$lib/database/entities";
 import EntityType from "$lib/database/entities/EntityType";
 
-interface Document extends FlatWorkspaceDocument {
+export interface Document extends FlatWorkspaceDocument {
     type: EntityType,
 };
 
-interface Folder extends FlatWorkspaceFolder {
+export interface Folder extends FlatWorkspaceFolder {
     type: EntityType,
 };
 
-export type CircularEntity = Document | Map<Folder, Array<CircularEntity>>;
+export interface HierarchyFolder extends Folder {
+    documents: Array<string>,
+    folders: Array<string>,
+};
 
 export interface MappedWorkspace extends Omit<FlatWorkspace, "documents" | "folders"> {
-    entities: Map<Folder | null, Array<CircularEntity>>
+    rootEntities: Array<Document | HierarchyFolder>,
+    hierarchy: Map<string, HierarchyFolder>,
+    entities: Map<string, Document | Folder>,
 };
 
 export type CurrentWorkspaceData = MappedWorkspace | null;
@@ -44,9 +49,13 @@ class StoreClass {
                 })
                 .then((response) => response.json())
                 .then((response: FlatWorkspace & { documents: Array<Document>, folders: Array<Folder> }) => {
+                    const { rootEntities, hierarchy, entities } = this.computeHierarchy(response.documents, response.folders);
+
                     this._update(() => ({
                         ...response,
-                        entities: this.mapFoldersAndDocuments(response.documents, response.folders),
+                        rootEntities,
+                        hierarchy,
+                        entities,
                     }));
                     resolve(true);
                 })
@@ -58,37 +67,86 @@ class StoreClass {
         });
     };
 
-    private mapFoldersAndDocuments(documents: Array<FlatWorkspaceDocument>, folders: Array<FlatWorkspaceFolder>): MappedWorkspace["entities"] {
-        const map: MappedWorkspace["entities"] = new Map();
+    private computeHierarchy(documents: Array<FlatWorkspaceDocument>, folders: Array<FlatWorkspaceFolder>): {
+        rootEntities: MappedWorkspace["rootEntities"],
+        hierarchy: MappedWorkspace["hierarchy"],
+        entities: MappedWorkspace["entities"]
+    } {
+        const hierarchy: MappedWorkspace["hierarchy"] = new Map();
+        const entities: MappedWorkspace["entities"] = new Map();
+        const rootEntities: MappedWorkspace["rootEntities"] = [];
 
-        const rootDocuments = documents.filter((doc) => doc.folder == null);
-        map.set(null, rootDocuments.map((doc) => ({ ...doc, type: EntityType.DOCUMENT })));
+        function addDocument(doc: FlatWorkspaceDocument) {
+            entities.set(doc.id, {
+                ...doc,
+                type: EntityType.DOCUMENT,
+            });
+        };
 
-        function computeFolderContents(folder: FlatWorkspaceFolder): Array<CircularEntity> {
-            // Finding every document, that lays in this folder
+        function addFolder(folder: FlatWorkspaceFolder) {
+            entities.set(folder.id, {
+                ...folder,
+                type: EntityType.FOLDER,
+            });
+        };
+
+        function computeFolderRecursively(folder: FlatWorkspaceFolder, isRootFolder = false): HierarchyFolder {
+            // Adding this folder to entities map
+            addFolder(folder);
+
+            // Getting all inner documents
             const innerDocuments = documents.filter((doc) => doc.folder == folder.id);
-            
-            // Finding every folder, that lays...
-            const innerFolders = folders.filter((innerFolder) => innerFolder.folder == folder.id);
-            const innerFoldersArray: Array<CircularEntity> = [];
 
-            for (const innerFolder of innerFolders) {
-                const contents = computeFolderContents(innerFolder);
-                if (contents != null) innerFoldersArray.push(new Map().set({ ...innerFolder, type: EntityType.FOLDER }, contents));
+            // Adding all innerDocuments to entities map
+            innerDocuments.forEach((doc) => addDocument(doc));
+
+            // Getting all inner folders
+            const innerFolders = folders.filter((innerFolder) => innerFolder.folder == folder.id);
+
+            // Adding all innerFolders to entities map
+            innerFolders.forEach((folder) => addFolder(folder));
+
+            // Computing all innerFolders
+            innerFolders.forEach((innerFolder) => {
+                computeFolderRecursively(innerFolder);
+            });
+
+            const hierarchyFolder = {
+                ...folder,
+                type: EntityType.FOLDER,
+                documents: innerDocuments.map((doc) => doc.id),
+                folders: innerFolders.map((folder) => folder.id),
             };
 
-            return [
-                ...innerDocuments.map((doc) => ({ ...doc, type: EntityType.DOCUMENT })),
-                ...innerFoldersArray
-            ];
+            if (!isRootFolder) {
+                hierarchy.set(folder.id, hierarchyFolder);
+            };
+
+            return hierarchyFolder;
         };
 
-        const rootFolders = folders.filter((folder) => folder.folder == null);
-        for (const folder of rootFolders) {
-            map.set({ ...folder, type: EntityType.FOLDER }, computeFolderContents(folder));
-        };
+        const rootFolders = folders.filter((folder) => folder.folder == null).map((folder) => computeFolderRecursively(folder));
+        
+        const rootDocuments = documents.filter((doc) => doc.folder == null);
+        [
+            ...rootFolders.map((folder) => ({ ...folder, type: EntityType.FOLDER })),
+            ...rootDocuments.map((doc) => ({ ...doc, type: EntityType.DOCUMENT }))
+        ].forEach((entity) => {
+            rootEntities.push(entity);
+        });
 
-        return map;
+        // Adding rootDocuments to entities map
+        rootDocuments.forEach((doc) => addDocument(doc));
+
+        console.log("hierarchy:", hierarchy);
+        console.log("entities:", entities);
+        console.log("rootEntities:", rootEntities);
+
+        return {
+            rootEntities,
+            hierarchy,
+            entities
+        };
     };
 
     public clear() {

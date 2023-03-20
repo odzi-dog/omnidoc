@@ -3,7 +3,7 @@ import { v4 } from "uuid";
 import { Workspace } from "../Workspaces";
 import { WorkspaceDocument } from "./Document";
 
-export interface FlatWorkspaceFolder extends Omit<WorkspaceFolder, "workspace" | "folder" | "documents"> {
+export interface FlatWorkspaceFolder extends Omit<WorkspaceFolder, "workspace" | "folder" | "folders" | "documents"> {
     workspace: string,
     folder?: string,
 };

@@ -3,19 +3,18 @@
     import CarbonChevronDown from '~icons/carbon/chevron-down';
 
 	import type { FlatWorkspaceFolder } from "$lib/database/entities";
-	import type { CircularEntity } from '$lib/stores/Application';
 	
     import Document from './Document.svelte';
-	import { AbstractFolder } from '$lib/components/AbstractExplorer';
+	import { AbstractFolder, type AbstractFolderContents } from '$lib/components/AbstractExplorer';
 	import { Folder } from '.';
 
     let isChildrenShown = true;
 
     export let folder: FlatWorkspaceFolder;
-    export let contents: Array<CircularEntity> | undefined = [];
+    export let contents: AbstractFolderContents;
 </script>
 
-<AbstractFolder bind:isChildrenShown let:setIsShown id={folder.id} folderComponent={Folder} documentComponent={Document} {contents}>
+<AbstractFolder bind:isChildrenShown let:setIsShown {contents} id={folder.id} folderComponent={Folder} documentComponent={Document}>
     <!-- Header -->
     <button slot="header" class="
         flex items-center text-gray-400 w-full rounded-xl p-1 transition 
