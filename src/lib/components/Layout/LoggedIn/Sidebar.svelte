@@ -29,7 +29,7 @@
 
     <!-- Content -->
     <div class="relative flex-grow mt-4 p-1 overflow-y-scroll">
-        { #if $ApplicationStore.workspaces == null }
+        { #if $ApplicationStore.workspaces == null || $CurrentWorkspaceStore == null }
             <div class="flex items-center mt-4 gap-4">
                 <Placeholder class="w-2/3 h-5" />
                 <Placeholder class="w-1/3 h-5" />
