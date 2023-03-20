@@ -1,8 +1,33 @@
 <script lang="ts">
-    import RoundedIconButton from '$lib/components/Buttons/RoundedIconButton.svelte';
     import CarbonNewTab from '~icons/carbon/new-tab';
-    import CarbonDocument from '~icons/carbon/document';
-    import CarbonOverflowMenuVertical from '~icons/carbon/overflow-menu-vertical';
+	import { setContext } from 'svelte';
+	import { AbstractExplorer } from '$lib/components/AbstractExplorer';
+	import { EXPLORER_CONTEXT_KEY, type ExplorerContext } from './_context';
+    import { CurrentWorkspaceStore } from "$lib/stores/Application";
+	import { Folder, Document } from './components';
+	import Placeholder from '$lib/components/Loaders/Placeholder.svelte';
+
+    // Context variables
+    let currentFolder: ExplorerContext["currentFolder"] = null;
+
+    // Context helper functions
+    function updateContext() {
+        setContext<ExplorerContext>(EXPLORER_CONTEXT_KEY, {
+            currentFolder: currentFolder,
+            ...getContextFunctions()
+        });
+    };
+
+    function getContextFunctions() {
+        return {
+            updateCurrentFolder(folderId: string) {
+                currentFolder = folderId;
+                updateContext();
+            },
+        }
+    };
+
+    updateContext();
 </script>
 
 <!-- Header -->
@@ -23,55 +48,73 @@
     </button>
 </div>
 
-<div class="grid grid-cols-5 auto-rows-auto gap-4 mt-8">
-    <!-- Folder document -->
-    <div class="w-full h-full group cursor-pointer">
-        <!-- Folder visual header -->
-        <div class="w-full flex">
-            <span class="h-4 w-1/3 bg-zinc-800 group-hover:bg-zinc-700 transition rounded-t-2xl"></span>
-        </div>
+<!-- Sub-header (with current folder path) -->
+{ #if currentFolder }
+    <p>{ currentFolder }</p>
+{ /if }
 
-        <!-- Content -->
-        <div class="bg-zinc-800 group-hover:bg-zinc-700 transition rounded-b-2xl rounded-r-2xl p-4 ">
-            <!-- Header (with action buttons) -->
-            <div class="w-full flex items-center justify-between">
-                <!-- Folder icon -->
-                <div class="rounded-full bg-zinc-700 border-2 border-zinc-600 p-2 text-gray-300">
-                    <img src="https://em-content.zobj.net/thumbs/120/apple/325/dog_1f415.png" class="w-5 h-5" alt="">
+{ #if $CurrentWorkspaceStore == null }
+    <div class="grid grid-cols-5 gap-4 mt-8 relative">
+        <!-- Overlay -->
+        <div class="absolute w-full h-full z-20 bg-gradient-to-b from-transparent to-zinc-900"></div>
+
+        { #each [1,2,3,4,5] as _ }
+            <div class="w-full h-full">
+                <!-- Folder visual header -->
+                <div class="w-full flex">
+                    <span class="h-4 w-1/3 bg-zinc-800 rounded-t-2xl"></span>
                 </div>
 
-                <!-- Folder settings -->
-                <RoundedIconButton icon={CarbonOverflowMenuVertical} />
-            </div>
+                <!-- Content -->
+                <div class="bg-zinc-800 rounded-b-2xl rounded-r-2xl p-4 ">
+                    <!-- Header (with action buttons) -->
+                    <div class="w-full flex items-center justify-between">
+                        <!-- Folder icon -->
+                        <Placeholder class="w-9 h-9 rounded-full" />
 
-            <!-- Text -->
-            <div class="mt-4">
-                <h1 class="text-md text-white">Games folder</h1>
-                <p class="text-sm text-gray-300">100 documents</p>
-            </div>
-        </div>
-    </div>
+                        <!-- Folder settings -->
+                        <Placeholder class="w-9 h-9 rounded-full" />
+                    </div>
 
-    <!-- Text Document -->
-    <div class="w-full group pt-4">
-        <!-- Content -->
-        <div class="bg-zinc-800 group-hover:bg-zinc-700 transition rounded-2xl p-4 ">
-            <!-- Header (with action buttons) -->
-            <div class="w-full flex items-center justify-between">
-                <!-- Folder icon -->
-                <div class="rounded-full bg-zinc-700 border-2 border-zinc-600 p-2 text-gray-300">
-                    <CarbonDocument class="w-5 h-5" />
+                    <!-- Text -->
+                    <div class="mt-4">
+                        <Placeholder class="w-full h-6" />
+                        
+                        <div class="flex mt-3 gap-4">
+                            <Placeholder class="w-2/3 h-5" />
+                            <Placeholder class="w-1/4 h-5" />
+                        </div>
+                    </div>
                 </div>
-
-                <!-- Folder settings -->
-                <RoundedIconButton icon={CarbonOverflowMenuVertical} />
             </div>
+        { /each }
 
-            <!-- Text -->
-            <div class="mt-4">
-                <h1 class="text-md text-white">Document</h1>
-                <p class="text-sm text-gray-300">Updated yesterday</p>
+        { #each [1,2,3,4,5,5,6,7] as _ }
+            <div class="w-full pt-4">
+                <!-- Content -->
+                <div class="bg-zinc-800 rounded-2xl p-4 ">
+                    <!-- Header (with action buttons) -->
+                    <div class="w-full flex items-center justify-between">
+                        <!-- Folder icon -->
+                        <Placeholder class="w-9 h-9 rounded-full" />
+            
+                        <!-- Folder settings -->
+                        <Placeholder class="w-9 h-9 rounded-full" />
+                    </div>
+            
+                    <!-- Text -->
+                    <div class="mt-4">
+                        <Placeholder class="w-full h-6" />
+                        
+                        <div class="flex mt-3 gap-4">
+                            <Placeholder class="w-2/3 h-5" />
+                            <Placeholder class="w-1/4 h-5" />
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
+        { /each }
     </div>
-</div>
+{ :else }
+    <AbstractExplorer entities={$CurrentWorkspaceStore?.entities} folderComponent={Folder} documentComponent={Document} class="grid grid-cols-5 gap-4 mt-8" />
+{ /if }

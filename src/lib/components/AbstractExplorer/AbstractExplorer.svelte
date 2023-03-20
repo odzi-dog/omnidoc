@@ -9,12 +9,15 @@
         return untyped as FlatWorkspaceDocument;
     };
 
+    let additionalContainerClasses: string = ""
+
+    export { additionalContainerClasses as class };
     export let folderComponent: any;
     export let documentComponent: any;
     export let entities: MappedWorkspace["entities"] = new Map();
 </script>
 
-<div in:fade class="w-full overflow-hidden">
+<div in:fade class="w-full { additionalContainerClasses }">
     <!-- Root folders (circular) -->
     { #each [...entities] as [folder, contents] }
         { #if folder != null }

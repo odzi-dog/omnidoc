@@ -6,7 +6,7 @@
 	import type { CircularEntity } from '$lib/stores/Application';
 	
     import Document from './Document.svelte';
-	import { AbstractFolder } from '$lib/components/Explorer/AbstractExplorer';
+	import { AbstractFolder } from '$lib/components/AbstractExplorer';
 	import { Folder } from '.';
 
     let isChildrenShown = true;

@@ -3,7 +3,7 @@
     export { classNames as class }
 </script>
 
-<div class="placeholder animated-background w-full rounded-full { classNames }"></div>
+<div class="placeholder animated-background rounded-full { classNames }"></div>
 
 <style>
     @keyframes placeHolderShimmer {

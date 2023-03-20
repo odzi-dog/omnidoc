@@ -9,7 +9,7 @@
 	import WorkspaceChooser from './Sidebar/WorkspaceChooser.svelte';
 	import Avatar from '$lib/components/Images/Avatar.svelte';
 	import { getUser } from '@lucia-auth/sveltekit/client';
-	import { AbstractExplorer } from '$lib/components/Explorer/AbstractExplorer';
+	import { AbstractExplorer } from '$lib/components/AbstractExplorer';
 	import Folder from './Sidebar/Folder.svelte';
 	import Document from './Sidebar/Document.svelte';
 
