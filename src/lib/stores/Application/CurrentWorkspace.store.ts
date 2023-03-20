@@ -1,15 +1,19 @@
 import { writable } from "svelte/store";
-import type { Workspace, WorkspaceDocument, WorkspaceFolder } from "$lib/database/entities";
+import type { FlatWorkspaceDocument, FlatWorkspaceFolder, FlatWorkspace } from "$lib/database/entities";
+import EntityType from "$lib/database/entities/EntityType";
 
-export enum EntityType {
-    FOLDER,
-    DOCUMENT,
+interface Document extends FlatWorkspaceDocument {
+    type: EntityType,
 };
 
-export type CircularEntity = WorkspaceDocument & { type: EntityType } | Map<WorkspaceFolder & { type: EntityType }, CircularEntity>;
+interface Folder extends FlatWorkspaceFolder {
+    type: EntityType,
+};
 
-interface MappedWorkspace extends Omit<Workspace, "documents" | "folders"> {
-    entities: Map<WorkspaceFolder & { type: EntityType } | null, Array<CircularEntity>>
+export type CircularEntity = Document | Map<Folder, CircularEntity>;
+
+interface MappedWorkspace extends Omit<FlatWorkspace, "documents" | "folders"> {
+    entities: Map<Folder | null, Array<CircularEntity>>
 };
 
 export type CurrentWorkspaceData = MappedWorkspace | null;
@@ -39,12 +43,9 @@ class StoreClass {
                     return response;
                 })
                 .then((response) => response.json())
-                .then((response: Workspace) => {
+                .then((response: FlatWorkspace & { documents: Array<Document>, folders: Array<Folder> }) => {
                     this._update(() => ({
                         ...response,
-                        // i dunno, ok?
-                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                        // @ts-ignore
                         entities: this.mapFoldersAndDocuments(response.documents, response.folders),
                     }));
                 })
@@ -56,13 +57,13 @@ class StoreClass {
         });
     };
 
-    private mapFoldersAndDocuments(documents: Array<WorkspaceDocument & { folder: string, workspace: string }>, folders: Array<WorkspaceFolder & { folder: string, workspace: string }>): MappedWorkspace["entities"] {
+    private mapFoldersAndDocuments(documents: Array<FlatWorkspaceDocument>, folders: Array<FlatWorkspaceFolder>): MappedWorkspace["entities"] {
         const map: MappedWorkspace["entities"] = new Map();
 
         const rootDocuments = documents.filter((doc) => doc.folder == null);
         map.set(null, rootDocuments.map((doc) => ({ ...doc, type: EntityType.DOCUMENT })));
 
-        function computeFolderContents(folder: WorkspaceFolder): Array<CircularEntity> {
+        function computeFolderContents(folder: FlatWorkspaceFolder): Array<CircularEntity> {
             // Finding every document, that lays in this folder
             const innerDocuments = documents.filter((doc) => doc.folder == folder.id);
             

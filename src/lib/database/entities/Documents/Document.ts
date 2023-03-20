@@ -3,8 +3,11 @@ import { v4 } from 'uuid';
 import { Workspace } from '../Workspaces';
 import { WorkspaceFolder } from './Folder';
 
-// idk why, but I can't name this entity Document
-// I really don't know why, and this is bothering me :<
+export interface FlatWorkspaceDocument extends Omit<WorkspaceDocument, "workspace" | "folder"> {
+    workspace: string,
+    folder?: string,
+};
+
 @Entity()
 export class WorkspaceDocument {
     @PrimaryKey()

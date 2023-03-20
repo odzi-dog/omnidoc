@@ -3,6 +3,11 @@ import { v4 } from "uuid";
 import { Workspace } from "../Workspaces";
 import { WorkspaceDocument } from "./Document";
 
+export interface FlatWorkspaceFolder extends Omit<WorkspaceFolder, "workspace" | "folder" | "documents"> {
+    workspace: string,
+    folder?: string,
+};
+
 @Entity()
 export class WorkspaceFolder {
     @PrimaryKey()
