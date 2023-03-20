@@ -3,11 +3,30 @@
 	import { setContext } from 'svelte';
 	import { AbstractExplorer } from '$lib/components/AbstractExplorer';
 	import { EXPLORER_CONTEXT_KEY, type ExplorerContext } from './_context';
-    import { CurrentWorkspaceStore, type MappedWorkspace } from "$lib/stores/Application";
+    import { CurrentWorkspaceStore, type HierarchyFolder, type MappedWorkspace } from "$lib/stores/Application";
 	import { Folder, Document } from './components';
 	import Placeholder from '$lib/components/Loaders/Placeholder.svelte';
+	import CarbonFolder from '~icons/carbon/folder';
+    import CarbonChevronRight from '~icons/carbon/chevron-right';
+	import RoundedIconButton from '$lib/components/Buttons/RoundedIconButton.svelte';
 
     $: rootEntities = $CurrentWorkspaceStore?.rootEntities ?? [];
+
+    // Returns array of ids of all parent folders, sorted from
+    // root folder and back to our current folder
+    function getFolderLocation(folderId: string): Array<string> {
+        let currentFolder = $CurrentWorkspaceStore?.hierarchy.get(folderId);
+        if (!currentFolder) return [];
+
+        const location: Array<string> = [];
+
+        while (currentFolder != null) {
+            location.push(currentFolder?.id);
+            currentFolder = $CurrentWorkspaceStore?.hierarchy.get(currentFolder?.folder ?? "");
+        };
+
+        return location.reverse();
+    };
 
     // Context variables
     let currentFolder: ExplorerContext["currentFolder"] = null;
@@ -20,15 +39,25 @@
         });
     };
 
+    function updateCurrentFolder(folderId: string | null) {
+        currentFolder = folderId;
+
+        // Getting this folder contents from our MappedWorkspace store
+        const folder = $CurrentWorkspaceStore?.hierarchy.get(folderId ?? "");
+
+        if (folder) {
+            rootEntities = [
+                ...folder.folders.map((folderId) => $CurrentWorkspaceStore?.entities.get(folderId)),
+                ...folder.documents.map((documentId) => $CurrentWorkspaceStore?.entities.get(documentId)),
+            ].filter((entity) => entity != undefined) as MappedWorkspace["rootEntities"];
+        };
+
+        updateContext();
+    };
+
     function getContextFunctions() {
         return {
-            updateCurrentFolder(folderId: string) {
-                currentFolder = folderId;
-
-                // Getting this folder contents from our MappedWorkspace store
-
-                updateContext();
-            },
+            updateCurrentFolder,
         }
     };
 
@@ -55,7 +84,28 @@
 
 <!-- Sub-header (with current folder path) -->
 { #if currentFolder }
-    <p>{ currentFolder }</p>
+    <div class="flex items-center">
+        <RoundedIconButton on:click={() => {
+            rootEntities = $CurrentWorkspaceStore?.rootEntities ?? [];
+            updateCurrentFolder(null);
+        }} style="dark" icon={CarbonFolder} class="text-gray-300 mr-4" />
+        
+        <!-- Hierarchy -->
+        { #each getFolderLocation(currentFolder) as folderId }
+            <button on:click={() => {
+                updateCurrentFolder(folderId);
+            }} class="
+                p-2 flex rounded-xl items-center transition
+                hover:bg-zinc-800
+            ">
+                <p class="text-gray-300 text-sm">{ $CurrentWorkspaceStore?.entities.get(folderId)?.title }</p>
+            </button>
+
+            { #if folderId != currentFolder }
+                <CarbonChevronRight class="mx-0.5 w-4 h-4 text-gray-300" />
+            { /if }
+        { /each }
+    </div>
 { /if }
 
 { #if $CurrentWorkspaceStore == null }

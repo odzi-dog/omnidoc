@@ -6,6 +6,7 @@
 	import { Folder, Document } from ".";
 	import { AbstractFolder, type AbstractFolderContents } from "$lib/components/AbstractExplorer";
 	import { EXPLORER_CONTEXT_KEY, type ExplorerContext } from "../_context";
+	import { scale } from "svelte/transition";
 
     const { updateCurrentFolder } = getContext<ExplorerContext>(EXPLORER_CONTEXT_KEY);
 
@@ -17,7 +18,7 @@
 </script>
 
 <AbstractFolder id={folder.id} folderComponent={Folder} documentComponent={Document}>
-    <button on:click={() => {
+    <button in:scale on:click={() => {
         selectThisFolder();
     }} slot="header" class="w-full h-full group cursor-pointer">
         <!-- Folder visual header -->

@@ -33,7 +33,9 @@
 
 <div class="w-full my-1">
     <!-- Header -->
-    <slot name="header" {setIsShown} />
+    { #key id }
+        <slot name="header" {setIsShown} />
+    { /key }
 
     <!-- Children -->
     { #if contents.length > 0 && isChildrenShown }
