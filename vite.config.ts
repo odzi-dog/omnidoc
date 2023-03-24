@@ -2,7 +2,6 @@ import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
 import Icons from 'unplugin-icons/vite';
 import viteTs from 'vite-plugin-ts';
-import { SocketsPlugin } from './src/plugins/SocketIOPlugin';
 
 export default defineConfig({
 	plugins: [
@@ -11,7 +10,6 @@ export default defineConfig({
 		Icons({
 			compiler: 'svelte',
 		}),
-		SocketsPlugin()
 	],
 	server: {
 		proxy: {
