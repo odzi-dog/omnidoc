@@ -1,5 +1,6 @@
 import { Centrifuge } from "centrifuge";
 import { writable } from "svelte/store";
+import { env } from "$env/dynamic/public";
 
 import * as Events from './SynchronizationStore/events';
 
@@ -28,7 +29,7 @@ class StoreClass {
         this.subscribe = subscribe;
         this._update = update;
 
-        this.client = new Centrifuge("ws://localhost:8000/connection/websocket", {});
+        this.client = new Centrifuge(`ws://${ env.PUBLIC_CENTRIFUGO_URL }/connection/websocket`, {});
         this.addListeners();
     };
 
