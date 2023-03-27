@@ -24,7 +24,7 @@
     };
 </script>
 
-<div class="{ false ? "opacity-30 hover:opacity-100" : "" } px-3 py-1.5 rounded-2xl flex items-center bg-zinc-700 transition">
+<div class="{ $SynchronizationStore.state == SynchronizationStoreState.CONNECTED ? "opacity-30 hover:opacity-100" : "" } px-3 py-1.5 rounded-2xl flex items-center bg-zinc-700 transition">
     <div class="w-4 h-4 rounded-full { getStateInformation($SynchronizationStore.state).color }"></div>
 
     <p class="text-sm ml-1.5 text-gray-300">{ getStateInformation($SynchronizationStore.state).text }</p>

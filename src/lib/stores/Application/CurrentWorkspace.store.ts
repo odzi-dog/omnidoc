@@ -1,6 +1,7 @@
 import { writable } from "svelte/store";
 import type { FlatWorkspaceDocument, FlatWorkspaceFolder, FlatWorkspace } from "$lib/database/entities";
 import EntityType from "$lib/database/entities/EntityType";
+import { getStore } from "$lib/helpers/getStore";
 
 export interface Document extends FlatWorkspaceDocument {
     type: EntityType,
@@ -65,6 +66,15 @@ class StoreClass {
                     reject(error);
                 });
         });
+    };
+
+    public async addEntity(type: "document" | "folder", entity: FlatWorkspaceDocument | FlatWorkspaceDocument) {
+        // Fuck it!!!!
+
+        // todo
+        // do this like a normal human being would
+        const store = await getStore<CurrentWorkspaceData>(this);
+        if (store?.id) this.fetchById(store.id);
     };
 
     private computeHierarchy(documents: Array<FlatWorkspaceDocument>, folders: Array<FlatWorkspaceFolder>): {
@@ -137,10 +147,6 @@ class StoreClass {
 
         // Adding rootDocuments to entities map
         rootDocuments.forEach((doc) => addDocument(doc));
-
-        console.log("hierarchy:", hierarchy);
-        console.log("entities:", entities);
-        console.log("rootEntities:", rootEntities);
 
         return {
             rootEntities,

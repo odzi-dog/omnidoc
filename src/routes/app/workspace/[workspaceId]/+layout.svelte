@@ -3,16 +3,21 @@
 	import { page } from "$app/stores";
     import { onDestroy, onMount } from "svelte";
 	import { goto } from "$app/navigation";
+    import { subscribe as subscribeToWorkspaceChanges, unsubscribe as unsubscribeFromWorkspaceChanges } from "./_subscriptions";
 
-    onMount(() => {
+    onMount(async () => {
         // Getting information about current workspace
-        CurrentWorkspaceStore.fetchById($page.params.workspaceId)
+        await CurrentWorkspaceStore.fetchById($page.params.workspaceId)
             .catch(() => {
                 goto("/app");
             });
+
+        await subscribeToWorkspaceChanges();
     });
 
-    onDestroy(() => {
+    onDestroy(async () => {
+        await unsubscribeFromWorkspaceChanges();
+
         CurrentWorkspaceStore.clear();
     });
 </script>

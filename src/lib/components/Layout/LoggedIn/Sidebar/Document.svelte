@@ -15,6 +15,6 @@
         <!-- Entry type (folder/document) or emoji -->
         <CarbonDocument class="m-1 w-4 h-4" />
         
-        <h1 class="text-sm ml-1">{ document.title }</h1>
+        <h1 class="text-sm ml-1 truncate overflow-hidden">{ document.title }</h1>
     </button>
 </div>
