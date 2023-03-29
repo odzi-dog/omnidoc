@@ -1,11 +1,11 @@
 <script lang="ts">
-	import type { FlatWorkspaceDocument } from "$lib/database/entities";
+	import type { DocumentHandler } from "$lib/stores/Application/EntityHandlers";
     import CarbonDocument from '~icons/carbon/document';
     import CarbonOverflowMenuVertical from '~icons/carbon/overflow-menu-vertical';
     import RoundedIconButton from '$lib/components/Buttons/RoundedIconButton.svelte';
 	import { scale } from "svelte/transition";
 
-    export let document: FlatWorkspaceDocument;
+    export let document: DocumentHandler;
 </script>
 
 { #key document.id }

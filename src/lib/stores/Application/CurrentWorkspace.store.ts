@@ -2,6 +2,7 @@ import { writable } from "svelte/store";
 import type { FlatWorkspaceDocument, FlatWorkspaceFolder, FlatWorkspace } from "$lib/database/entities";
 import EntityType from "$lib/database/entities/EntityType";
 import { getStore } from "$lib/helpers/getStore";
+import { DocumentHandlerBuilder, FolderHandler, FolderHandlerBuilder, DocumentHandler, DocumentHandlerHooks } from "./EntityHandlers";
 
 export interface Document extends FlatWorkspaceDocument {
     type: EntityType,
@@ -19,7 +20,7 @@ export interface HierarchyFolder extends Folder {
 export interface MappedWorkspace extends Omit<FlatWorkspace, "documents" | "folders"> {
     rootEntities: Array<Document | HierarchyFolder>,
     hierarchy: Map<string, HierarchyFolder>,
-    entities: Map<string, Document | Folder>,
+    entities: Map<string, DocumentHandler | FolderHandler>,
 };
 
 export type CurrentWorkspaceData = MappedWorkspace | null;
@@ -87,17 +88,23 @@ class StoreClass {
         const rootEntities: MappedWorkspace["rootEntities"] = [];
 
         function addDocument(doc: FlatWorkspaceDocument) {
-            entities.set(doc.id, {
-                ...doc,
-                type: EntityType.DOCUMENT,
-            });
+            entities.set(doc.id, 
+                new DocumentHandlerBuilder(doc)
+                    .addHook(DocumentHandlerHooks.ON_DELETE, async (document) => {
+                        // todo
+                        // Removing this document from our CurrentWorkspaceStore
+                        const store = await getStore<CurrentWorkspaceData>(CurrentWorkspaceStore);
+                        if (store?.id) CurrentWorkspaceStore.fetchById(store.id);
+                    })
+                    .build()
+            );
         };
 
         function addFolder(folder: FlatWorkspaceFolder) {
-            entities.set(folder.id, {
-                ...folder,
-                type: EntityType.FOLDER,
-            });
+            entities.set(folder.id, 
+                new FolderHandlerBuilder(folder)
+                    .build()
+            );
         };
 
         function computeFolderRecursively(folder: FlatWorkspaceFolder, isRootFolder = false): HierarchyFolder {

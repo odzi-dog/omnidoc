@@ -41,12 +41,12 @@
     <!-- Root documents -->
     { #each rootEntities as entity }
         { #if entity.type == EntityType.DOCUMENT }
-            <svelte:component this={documentComponent} document={entity} />
+            <svelte:component this={documentComponent} document={entities.get(entity.id)} />
         { :else if entity.type == EntityType.FOLDER }
             <!-- urgh -->
             { @const folder = folderTypeGuard(entity) }
 
-            <svelte:component this={folderComponent} folder={entity} contents={getFolderContents(folder.id)} />
+            <svelte:component this={folderComponent} folder={entities.get(entity.id)} contents={getFolderContents(folder.id)} />
         { /if }
     { /each }
 </div>

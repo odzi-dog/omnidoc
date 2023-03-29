@@ -2,7 +2,7 @@
     import CarbonChevronRight from '~icons/carbon/chevron-right';
     import CarbonChevronDown from '~icons/carbon/chevron-down';
 
-	import type { FlatWorkspaceFolder } from "$lib/database/entities";
+	import type { FolderHandler } from '$lib/stores/Application/EntityHandlers';
 	
     import Document from './Document.svelte';
 	import { AbstractFolder, type AbstractFolderContents } from '$lib/components/AbstractExplorer';
@@ -10,7 +10,7 @@
 
     let isChildrenShown = true;
 
-    export let folder: FlatWorkspaceFolder;
+    export let folder: FolderHandler;
     export let contents: AbstractFolderContents;
 </script>
 

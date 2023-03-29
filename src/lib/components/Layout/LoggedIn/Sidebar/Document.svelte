@@ -2,8 +2,10 @@
     import CarbonDocument from '~icons/carbon/document';
     import CarbonOverflowMenuVertical from '~icons/carbon/overflow-menu-vertical';
     import CarbonTrashCan from '~icons/carbon/trash-can';
+    import CarbonShare from '~icons/carbon/share';
+    import CarbonStatusChange from '~icons/carbon/status-change';
 
-	import type { WorkspaceDocument } from "$lib/database/entities";
+    import type { DocumentHandler } from '$lib/stores/Application/EntityHandlers';
     import {
         Menu,
         MenuButton,
@@ -11,8 +13,9 @@
         MenuItems,
     } from "@rgossiaux/svelte-headlessui";
 	import { fade } from 'svelte/transition';
+	import { gotoWorkspacePage } from '$lib/helpers/workspace';
 
-    export let document: WorkspaceDocument;
+    export let document: DocumentHandler;
 </script>
 
 <div class="w-full my-1">
@@ -57,21 +60,37 @@
                             <!-- Actions -->
                             <div class="mt-2">
                                 <!-- Share -->
+                                <button on:click={() => {
+                                    // todo
+                                    // open popover with this page
+                                    gotoWorkspacePage(`/document/${ document.id }/share`);
+                                }} class="w-full my-2 rounded-2xl hover:bg-zinc-700 flex items-center px-2 py-1.5 transition">
+                                    <CarbonShare class="w-4 h-4" />
+
+                                    <p class="text-sm ml-2">Share</p>
+                                </button>
 
                                 <!-- History -->
+                                <button on:click={() => {
+                                    gotoWorkspacePage(`/document/${ document.id }/history`);
+                                }} class="w-full my-2 rounded-2xl hover:bg-zinc-700 flex items-center px-2 py-1.5 transition">
+                                    <CarbonStatusChange class="w-4 h-4" />
+
+                                    <p class="text-sm ml-2">History</p>
+                                </button>
 
                                 <div class="w-full my-2 px-2">
                                     <div class="w-full h-[1px] opacity-50 rounded-full bg-zinc-600"></div>
                                 </div>
                                 
                                 <!-- Delete -->
-                                <button on:click={() => {
-                                    
+                                <MenuItem on:click={async () => {
+                                    await document.delete();
                                 }} class="w-full my-2 rounded-2xl hover:bg-red-700 hover:bg-opacity-10 text-red-500 hover:text-red-700 flex items-center px-2 py-1.5 transition">
                                     <CarbonTrashCan class="w-4 h-4" />
 
                                     <p class="text-sm ml-2">Delete</p>
-                                </button>
+                                </MenuItem>
                             </div>
                         </div>
                     </MenuItems>

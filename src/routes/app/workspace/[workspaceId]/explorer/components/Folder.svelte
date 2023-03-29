@@ -1,6 +1,6 @@
 <script lang="ts">
 	import RoundedIconButton from "$lib/components/Buttons/RoundedIconButton.svelte";
-	import type { FlatWorkspaceFolder } from "$lib/database/entities";
+	import type { FolderHandler } from "$lib/stores/Application/EntityHandlers";
 	import { getContext } from "svelte";
     import CarbonOverflowMenuVertical from '~icons/carbon/overflow-menu-vertical';
 	import { Folder, Document } from ".";
@@ -14,7 +14,7 @@
         updateCurrentFolder(folder.id);
     };
 
-    export let folder: FlatWorkspaceFolder;
+    export let folder: FolderHandler;
 </script>
 
 <AbstractFolder id={folder.id} folderComponent={Folder} documentComponent={Document}>

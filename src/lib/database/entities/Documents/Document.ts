@@ -5,7 +5,8 @@ import { Workspace } from '../Workspaces';
 import { WorkspaceFolder } from './Folder';
 import { ServerSynchronizationClient } from '$lib/database/SynchronizationInstance';
 
-export interface FlatWorkspaceDocument extends Omit<WorkspaceDocument, "workspace" | "folder"> {
+// urgh
+export interface FlatWorkspaceDocument extends Omit<WorkspaceDocument, "workspace" | "folder" | "flatten" | "propagateCreateEvent" | "propagateUpdateEvent"> {
     workspace: string,
     folder?: string,
 };
