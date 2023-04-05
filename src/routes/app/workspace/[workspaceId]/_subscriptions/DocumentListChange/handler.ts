@@ -1,7 +1,7 @@
 import { CurrentWorkspaceStore, type CurrentWorkspaceData } from "$lib/stores/Application";
 import type { DocumentListChangeEvent } from "$lib/synchronization";
 
-export class DocumentListChange {
+export default class DocumentListChange {
     public subscriptionName;
 
     constructor(workspace: CurrentWorkspaceData) {

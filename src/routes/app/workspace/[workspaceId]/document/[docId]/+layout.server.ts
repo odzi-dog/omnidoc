@@ -11,7 +11,7 @@ const load: LayoutServerLoad = async function({ params }) {
     const document = await Database.findOne(WorkspaceDocument, documentId);
     
     if (!document) throw error(404, "Document not found");
-    return document;
+    return document.flatten();
 };
 
 export { load };

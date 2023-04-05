@@ -1,3 +1,3 @@
-import { DocumentListChange } from './DocumentListChange/handler';
+import DocumentListChange from './DocumentListChange/handler';
 
 export { DocumentListChange };

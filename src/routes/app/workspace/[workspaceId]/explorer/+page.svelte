@@ -65,7 +65,7 @@
 </script>
 
 <!-- Header -->
-<div class="flex">
+<div class="flex pt-4">
     <!-- Texts -->
     <div class="mr-[auto]">
         <h1 class="text-xl text-white">Documents</h1>

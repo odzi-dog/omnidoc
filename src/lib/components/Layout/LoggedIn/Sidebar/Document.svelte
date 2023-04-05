@@ -14,6 +14,7 @@
     } from "@rgossiaux/svelte-headlessui";
 	import { fade } from 'svelte/transition';
 	import { gotoWorkspacePage } from '$lib/helpers/workspace';
+	import { CurrentDocumentStore } from '$lib/stores/Application';
 
     export let document: DocumentHandler;
 </script>
@@ -22,8 +23,10 @@
     <!-- Header -->
     <button class="
         flex items-center text-gray-400 w-full rounded-xl p-1 group transition 
-        hover:bg-zinc-700
-    ">    
+        { $CurrentDocumentStore?.document.id == document.id ? "bg-zinc-700 hover:bg-zinc-600" : "hover:bg-zinc-700" }
+    " on:click={() => {
+        gotoWorkspacePage(`/document/${ document.id }`);
+    }}>
         <!-- Entry type (folder/document) or emoji -->
         <CarbonDocument class="m-1 w-4 h-4" />
         
