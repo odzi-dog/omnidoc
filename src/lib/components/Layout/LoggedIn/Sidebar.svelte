@@ -8,13 +8,10 @@
 	import { Placeholder } from '$lib/components/Loaders';
 	import WorkspaceChooser from './Sidebar/WorkspaceChooser.svelte';
 	import Avatar from '$lib/components/Images/Avatar.svelte';
-	import { getUser } from '@lucia-auth/sveltekit/client';
 	import { AbstractExplorer } from '$lib/components/AbstractExplorer';
-	import Folder from './Sidebar/Folder.svelte';
-	import Document from './Sidebar/Document.svelte';
+	import { Folder, CreateEntityButton, Document } from './Sidebar';
 	import { page } from '$app/stores';
-
-    const user = getUser();
+    import { UserStore } from '$lib/stores/User.store';
 
     let additionalClassNames: string = "";
     export { additionalClassNames as class };
@@ -75,6 +72,7 @@
 
                     folderComponent={Folder} 
                     documentComponent={Document} 
+                    afterFolderContentsComponent={CreateEntityButton}
                 />
             { /if }
         { /if }
@@ -83,7 +81,7 @@
     <!-- Account -->
     <div class="flex items-center gap-3 p-3">
         <!-- Profile icon -->
-        <Avatar seed={$user?.username} type="initials" class="w-9 h-9 mr-[auto]" />
+        <Avatar seed={$UserStore?.username} type="initials" class="w-9 h-9 mr-[auto]" />
 
         { #each [
             { icon: CarbonBookmark }, 

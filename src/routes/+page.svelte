@@ -1,12 +1,10 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
-	import { getUser } from "@lucia-auth/sveltekit/client";
 	import { onMount } from "svelte";
-
-    const user = getUser();
+    import { UserStore } from '$lib/stores/User.store';
 
     onMount(() => {
-        if ($user) {
+        if ($UserStore) {
             goto("/app");
         } else {
             // Redirecting to login page

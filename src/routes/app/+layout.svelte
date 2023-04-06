@@ -3,13 +3,11 @@
 	import SocketsConnectionBadge from "$lib/components/Layout/LoggedIn/SocketsConnectionBadge.svelte";
     import { ApplicationStore } from "$lib/stores/Application.store";
 	import { SynchronizationStore } from "$lib/stores/Synchronization.store";
-	import { getUser } from "@lucia-auth/sveltekit/client";
 	import { onMount } from "svelte";
-
-    const user = getUser();
+    import { UserStore } from '$lib/stores/User.store';
 
     onMount(() => {
-        if ($user == null) {
+        if ($UserStore == null) {
             return goto("/login");
         };
 
@@ -21,7 +19,7 @@
     });
 </script>
 
-{ #if $user != null }
+{ #if $UserStore != null }
     <slot />
 
     <!-- Sockets connecting status -->

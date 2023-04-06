@@ -31,6 +31,7 @@
     export { additionalContainerClasses as class };
     export let folderComponent: any;
     export let documentComponent: any;
+    export let afterFolderContentsComponent: any | null = null;
 
     export let rootEntities: MappedWorkspace["rootEntities"] = [];
     export let entities: MappedWorkspace["entities"] = new Map();
@@ -46,7 +47,11 @@
             <!-- urgh -->
             { @const folder = folderTypeGuard(entity) }
 
-            <svelte:component this={folderComponent} folder={entities.get(entity.id)} contents={getFolderContents(folder.id)} />
+            <svelte:component this={folderComponent} folder={entities.get(entity.id)} contents={getFolderContents(folder.id)} {afterFolderContentsComponent} />
         { /if }
     { /each }
+
+    { #if afterFolderContentsComponent }
+        <svelte:component this={afterFolderContentsComponent} />
+    { /if }
 </div>

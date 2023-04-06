@@ -29,7 +29,7 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
         // Checking if we have this user or no
         if (await auth.getKey("odzi.dog", identity.id).catch(() => (null)) == null) {
             await auth.createUser({
-                key: {
+                primaryKey: {
                     providerId: "odzi.dog",
                     providerUserId: identity.id,
                     password: null
@@ -44,16 +44,13 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 
         // Creating our session
         const session = await auth.createSession(key.userId);
-        const sessionCookies = auth.createSessionCookies(session);
-
-        // idk what to do with this.
-        if (sessionCookies.length > 1) throw error(500, { message: "Server error" });
+        const sessionCookie = auth.createSessionCookie(session);
 
         // Sending session cookies back to user
         return new Response(null, {
             status: 307,
             headers: {
-                "set-cookie": sessionCookies[0].serialize(),
+                "set-cookie": sessionCookie.serialize(),
                 location: "/app"
             }
         });

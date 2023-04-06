@@ -1,16 +1,17 @@
-<script>
+<script lang="ts">
 	import '../app.postcss';
 
 	import { page } from "$app/stores";
-	import { getUser, handleSession } from "@lucia-auth/sveltekit/client";
+	import type { LayoutData } from './$types';
 	import LoggedInLayout from '$lib/components/Layout/LoggedInLayout.svelte';
-	import { onMount } from 'svelte';
+	import { UserStore } from '$lib/stores/User.store';
+	
+	export let data: LayoutData;
 
-	handleSession(page);
-	const user = getUser();
+	UserStore.loadFromFlatObject(data);
 </script>
 
-{ #if $user != null }
+{ #if $UserStore != null }
 	<LoggedInLayout>
 		<slot />
 	</LoggedInLayout>

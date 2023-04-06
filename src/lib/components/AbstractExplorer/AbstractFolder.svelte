@@ -25,6 +25,8 @@
 
     export { isChildrenShown };
 
+    export let afterFolderContentsComponent: any | null = null;
+
     export let id: string = "";
     export let folderComponent: any;
     export let documentComponent: any;
@@ -43,7 +45,7 @@
             <div class="my-1">
                 { #each contents as entity }
                     { #if entity.type == EntityType.FOLDER }
-                        <svelte:component this={folderComponent} folder={entity} contents={getFolderContents(entity)} />
+                        <svelte:component this={folderComponent} folder={entity} contents={getFolderContents(entity)} {afterFolderContentsComponent} />
                     { :else if entity.type == EntityType.DOCUMENT }
                         { @const document = documentTypedGuard(entity) }
 
@@ -51,6 +53,10 @@
                     { /if }
                 { /each }
             </div>
+
+            { #if afterFolderContentsComponent != null }
+                <svelte:component this={afterFolderContentsComponent} folderId={id} />
+            { /if }
         </div>
     { /if }
 </div>

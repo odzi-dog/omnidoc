@@ -10,11 +10,13 @@
 
     let isChildrenShown = true;
 
+    export let afterFolderContentsComponent: any | null = null;
+
     export let folder: FolderHandler;
     export let contents: AbstractFolderContents;
 </script>
 
-<AbstractFolder bind:isChildrenShown let:setIsShown {contents} id={folder.id} folderComponent={Folder} documentComponent={Document}>
+<AbstractFolder bind:isChildrenShown let:setIsShown {contents} id={folder.id} folderComponent={Folder} documentComponent={Document} {afterFolderContentsComponent}>
     <!-- Header -->
     <button slot="header" class="
         flex items-center text-gray-400 w-full rounded-xl p-1 transition 

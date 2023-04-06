@@ -1,4 +1,5 @@
 import { default as lucia } from "lucia-auth";
+import { sveltekit } from "lucia-auth/middleware";
 import { dev } from "$app/environment";
 import { Adapter } from "./adapter";
 
@@ -10,6 +11,7 @@ export interface User {
 export const auth = lucia({
     adapter: Adapter,
     env: dev ? "DEV" : "PROD",
+    middleware: sveltekit(),
 
     transformUserData: (userData) => {
         return {

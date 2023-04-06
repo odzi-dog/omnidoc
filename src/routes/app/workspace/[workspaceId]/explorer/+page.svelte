@@ -1,32 +1,19 @@
 <script lang="ts">
-    import CarbonNewTab from '~icons/carbon/new-tab';
+    import CarbonDocumentAdd from '~icons/carbon/document-add';
 	import { setContext } from 'svelte';
 	import { AbstractExplorer } from '$lib/components/AbstractExplorer';
 	import { EXPLORER_CONTEXT_KEY, type ExplorerContext } from './_context';
     import { CurrentWorkspaceStore, type HierarchyFolder, type MappedWorkspace } from "$lib/stores/Application";
 	import { Folder, Document } from './components';
+	import { CreateDocumentDialog } from '$lib/components/Dialogs';
 	import Placeholder from '$lib/components/Loaders/Placeholder.svelte';
 	import CarbonFolder from '~icons/carbon/folder';
     import CarbonChevronRight from '~icons/carbon/chevron-right';
 	import RoundedIconButton from '$lib/components/Buttons/RoundedIconButton.svelte';
 
+    import { getFolderLocation } from '$lib/helpers/workspace';
+
     $: rootEntities = $CurrentWorkspaceStore?.rootEntities ?? [];
-
-    // Returns array of ids of all parent folders, sorted from
-    // root folder and back to our current folder
-    function getFolderLocation(folderId: string): Array<string> {
-        let currentFolder = $CurrentWorkspaceStore?.hierarchy.get(folderId);
-        if (!currentFolder) return [];
-
-        const location: Array<string> = [];
-
-        while (currentFolder != null) {
-            location.push(currentFolder?.id);
-            currentFolder = $CurrentWorkspaceStore?.hierarchy.get(currentFolder?.folder ?? "");
-        };
-
-        return location.reverse();
-    };
 
     // Context variables
     let currentFolder: ExplorerContext["currentFolder"] = null;
@@ -72,14 +59,16 @@
     </div>
 
     <!-- Buttons -->
-    <button class="
-        flex items-center px-5 py-1.5 rounded-xl bg-blue-500 text-white transition
-        hover:bg-blue-700 hover:text-gray-100
-    ">
-        <CarbonNewTab class="h-4 w-4 mr-2" />
+    <CreateDocumentDialog let:setIsOpen>
+        <button class="
+            flex items-center px-5 py-1.5 rounded-full bg-blue-500 text-white transition
+            hover:bg-blue-700 hover:text-gray-100
+        " on:click={() => setIsOpen(true)}>
+            <CarbonDocumentAdd class="h-4 w-4 mr-2" />
 
-        <p class="text-sm font-medium">Create new document</p>
-    </button>
+            <p class="text-sm font-medium">Create new document</p>
+        </button>
+    </CreateDocumentDialog>
 </div>
 
 <!-- Sub-header (with current folder path) -->
@@ -91,7 +80,7 @@
         }} style="dark" icon={CarbonFolder} class="text-gray-300 mr-4" />
         
         <!-- Hierarchy -->
-        { #each getFolderLocation(currentFolder) as folderId }
+        { #each getFolderLocation($CurrentWorkspaceStore?.hierarchy ?? new Map(), currentFolder) as folderId }
             <button on:click={() => {
                 updateCurrentFolder(folderId);
             }} class="
