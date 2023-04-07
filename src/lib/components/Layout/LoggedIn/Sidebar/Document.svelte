@@ -63,7 +63,7 @@
                             <!-- Actions -->
                             <div class="mt-2">
                                 <!-- Share -->
-                                <button on:click={() => {
+                                <button on:click|preventDefault|stopPropagation={() => {
                                     // todo
                                     // open popover with this page
                                     gotoWorkspacePage(`/document/${ document.id }/share`);
@@ -74,7 +74,7 @@
                                 </button>
 
                                 <!-- History -->
-                                <button on:click={() => {
+                                <button on:click|preventDefault|stopPropagation={() => {
                                     gotoWorkspacePage(`/document/${ document.id }/history`);
                                 }} class="w-full my-2 rounded-2xl hover:bg-zinc-700 flex items-center px-2 py-1.5 transition">
                                     <CarbonStatusChange class="w-4 h-4" />
@@ -87,13 +87,13 @@
                                 </div>
                                 
                                 <!-- Delete -->
-                                <MenuItem on:click={async () => {
+                                <button on:click|preventDefault|stopPropagation={async () => {
                                     await document.delete();
                                 }} class="w-full my-2 rounded-2xl hover:bg-red-700 hover:bg-opacity-10 text-red-500 hover:text-red-700 flex items-center px-2 py-1.5 transition">
                                     <CarbonTrashCan class="w-4 h-4" />
 
                                     <p class="text-sm ml-2">Delete</p>
-                                </MenuItem>
+                                </button>
                             </div>
                         </div>
                     </MenuItems>

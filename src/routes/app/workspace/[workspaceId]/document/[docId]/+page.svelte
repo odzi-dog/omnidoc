@@ -6,7 +6,7 @@
     import CarbonShare from '~icons/carbon/share';
     import CarbonStatusChange from '~icons/carbon/status-change';
     import CarbonSettings from '~icons/carbon/settings';
-	import CarbonFolder from '~icons/carbon/folder';
+    import CarbonHome from '~icons/carbon/home';
     import CarbonChevronRight from '~icons/carbon/chevron-right';
 
     import { CurrentDocumentStore, CurrentWorkspaceStore } from '$lib/stores/Application';
@@ -15,6 +15,7 @@
 	import { RoundedIconButton } from '$lib/components/Buttons';
 
     import * as SectionsImport from './sections';
+	import { getFolderLocation, gotoWorkspacePage } from '$lib/helpers/workspace';
     const Sections = Object.values(SectionsImport);
     
     onMount(async () => {
@@ -31,7 +32,11 @@
     });
 
     onDestroy(async () => {
-        if ($CurrentDocumentStore != null) await unsubscribeFromDocumentChanges();
+        if ($CurrentDocumentStore != null) {
+            await unsubscribeFromDocumentChanges();
+        };
+
+        CurrentDocumentStore.clear();
     });
 
     const sections = [
@@ -55,20 +60,6 @@
         }
     ]
 
-    function getFolderLocation(folderId: string): Array<string> {
-        let currentFolder = $CurrentWorkspaceStore?.hierarchy.get(folderId);
-        if (!currentFolder) return [];
-
-        const location: Array<string> = [];
-
-        while (currentFolder != null) {
-            location.push(currentFolder?.id);
-            currentFolder = $CurrentWorkspaceStore?.hierarchy.get(currentFolder?.folder ?? "");
-        };
-
-        return location.reverse();
-    };
-
     export let data: PageData;
 </script>
 
@@ -77,11 +68,13 @@
     <header class="w-full flex items-center justify-between">
 
         <div class="flex items-center">
-            <RoundedIconButton style="dark" icon={CarbonFolder} class="text-gray-300 mr-4" />
+            <RoundedIconButton on:click={() => {
+                gotoWorkspacePage("/explorer");
+            }} style="dark" icon={CarbonHome} class="text-gray-300 mr-4" />
             
             <!-- Hierarchy -->
             { #if data.folder }
-                { #each getFolderLocation(data.folder) as folderId }
+                { #each getFolderLocation($CurrentWorkspaceStore?.hierarchy ?? new Map(), data.folder) as folderId }
                     <button class="
                         p-2 flex rounded-xl items-center transition
                         hover:bg-zinc-800

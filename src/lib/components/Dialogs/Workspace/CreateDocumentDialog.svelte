@@ -61,7 +61,7 @@
                 </div>
 
                 <!-- Document location -->
-                <label for="location" class="text-xs uppercase text-gray-400">Document location</label>
+                <label for="location_chooser" class="text-xs uppercase text-gray-400">Document location</label>
 
                 <FolderChooser {folderId} />
             </form>

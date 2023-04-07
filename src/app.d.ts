@@ -12,7 +12,7 @@ declare namespace Lucia {
 declare global {
 	namespace App {
 		type Locals = import("lucia-auth").AuthRequest;
-	}
+	};
 }
 
 export {};

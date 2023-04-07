@@ -4,6 +4,7 @@ import { v4 } from 'uuid';
 import { Workspace } from '../Workspaces';
 import { WorkspaceFolder } from './Folder';
 import { ServerSynchronizationClient } from '$lib/database/SynchronizationInstance';
+import { State } from 'centrifuge';
 
 // urgh
 export interface FlatWorkspaceDocument extends Omit<WorkspaceDocument, "workspace" | "folder" | "flatten" | "propagateCreateEvent" | "propagateUpdateEvent"> {
@@ -45,6 +46,8 @@ export class WorkspaceDocument {
 
     @AfterCreate()
     public async propagateCreateEvent({ entity }: EventArgs<WorkspaceDocument>) {
+        if (ServerSynchronizationClient.state != State.Connected) return;
+
         await ServerSynchronizationClient.publish(`documentListChange-${ entity.workspace.id }`, {
             type: "document",
             document: entity.flatten(),
@@ -53,6 +56,8 @@ export class WorkspaceDocument {
 
     @AfterUpdate()
     public async propagateUpdateEvent({ entity }: EventArgs<WorkspaceDocument>) {
+        if (ServerSynchronizationClient.state != State.Connected) return;
+        
         await ServerSynchronizationClient.publish(`documentListChange-${ entity.workspace.id }`, {
             type: "document",
             document: entity.flatten(),

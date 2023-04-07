@@ -4,12 +4,15 @@
     import CarbonOverflowMenuVertical from '~icons/carbon/overflow-menu-vertical';
     import RoundedIconButton from '$lib/components/Buttons/RoundedIconButton.svelte';
 	import { scale } from "svelte/transition";
+	import { gotoWorkspacePage } from "$lib/helpers/workspace";
 
     export let document: DocumentHandler;
 </script>
 
 { #key document.id }
-    <div in:scale class="w-full group pt-4">
+    <button on:click={() => {
+        gotoWorkspacePage(`/document/${ document.id }`);
+    }} in:scale class="w-full group pt-4">
         <!-- Content -->
         <div class="bg-zinc-800 group-hover:bg-zinc-700 transition rounded-2xl p-4 ">
             <!-- Header (with action buttons) -->
@@ -24,10 +27,10 @@
             </div>
 
             <!-- Text -->
-            <div class="mt-4">
+            <div class="mt-4 text-left">
                 <h1 class="text-md text-white">{ document.title }</h1>
                 <p class="text-sm text-gray-300">Updated yesterday</p>
             </div>
         </div>
-    </div>
+    </button>
 { /key }

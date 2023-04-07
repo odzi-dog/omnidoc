@@ -1,7 +1,10 @@
-import { Collection, Entity, ManyToOne, OneToMany, PrimaryKey, Property } from "@mikro-orm/core";
+import { AfterCreate, Collection, Entity, ManyToOne, OneToMany, PrimaryKey, Property, type EventArgs, AfterUpdate } from "@mikro-orm/core";
 import { v4 } from "uuid";
 import { Workspace } from "../Workspaces";
 import { WorkspaceDocument } from "./Document";
+import { ServerSynchronizationClient } from "$lib/database/SynchronizationInstance";
+import { State } from "centrifuge";
+import type { DocumentListChangeEvent } from "$lib/synchronization";
 
 export interface FlatWorkspaceFolder extends Omit<WorkspaceFolder, "workspace" | "folder" | "folders" | "documents"> {
     workspace: string,
@@ -32,5 +35,25 @@ export class WorkspaceFolder {
         this.title = title;
         this.workspace = workspace;
         this.folder = folder;
+    };
+
+    @AfterCreate()
+    public async propagateCreateEvent({ entity }: EventArgs<WorkspaceDocument>) {
+        if (ServerSynchronizationClient.state != State.Connected) return;
+
+        await ServerSynchronizationClient.publish(`documentListChange-${ entity.workspace.id }`, {
+            type: "folder",
+            folder: entity.flatten(),
+        } as DocumentListChangeEvent);
+    };
+
+    @AfterUpdate()
+    public async propagateUpdateEvent({ entity }: EventArgs<WorkspaceDocument>) {
+        if (ServerSynchronizationClient.state != State.Connected) return;
+        
+        await ServerSynchronizationClient.publish(`documentListChange-${ entity.workspace.id }`, {
+            type: "folder",
+            folder: entity.flatten(),
+        } as DocumentListChangeEvent);
     };
 };

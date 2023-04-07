@@ -28,6 +28,10 @@ class StoreClass {
             };
         });
     };
+
+    public clear() {
+        this._update(() => (null));
+    };
 };
 
 export const CurrentDocumentStore = new StoreClass();

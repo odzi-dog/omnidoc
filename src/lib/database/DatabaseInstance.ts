@@ -1,7 +1,7 @@
 import { MikroORM } from '@mikro-orm/core';
 import { WorkspaceDocument, Workspace, WorkspaceFolder } from './entities';
 
-const instance = await MikroORM.init({
+export const instance = await MikroORM.init({
     entities: [WorkspaceDocument, Workspace, WorkspaceFolder],
     dbName: `./data/data.sqlite3`,
     type: 'better-sqlite',
@@ -21,5 +21,7 @@ if (await migrator.checkMigrationNeeded()) {
 export default instance;
 
 export function getDatabase() {
-    return instance.em.fork();
+    return instance.em.fork({
+        cloneEventManager: true
+    });
 };

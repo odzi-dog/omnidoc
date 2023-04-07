@@ -8,10 +8,12 @@
 	import { CreateDocumentDialog } from '$lib/components/Dialogs';
 	import Placeholder from '$lib/components/Loaders/Placeholder.svelte';
 	import CarbonFolder from '~icons/carbon/folder';
+    import CarbonHome from '~icons/carbon/home';
     import CarbonChevronRight from '~icons/carbon/chevron-right';
 	import RoundedIconButton from '$lib/components/Buttons/RoundedIconButton.svelte';
 
     import { getFolderLocation } from '$lib/helpers/workspace';
+	import { fade } from 'svelte/transition';
 
     $: rootEntities = $CurrentWorkspaceStore?.rootEntities ?? [];
 
@@ -77,11 +79,11 @@
         <RoundedIconButton on:click={() => {
             rootEntities = $CurrentWorkspaceStore?.rootEntities ?? [];
             updateCurrentFolder(null);
-        }} style="dark" icon={CarbonFolder} class="text-gray-300 mr-4" />
+        }} style="dark" icon={CarbonHome} class="text-gray-300 mr-4" />
         
         <!-- Hierarchy -->
         { #each getFolderLocation($CurrentWorkspaceStore?.hierarchy ?? new Map(), currentFolder) as folderId }
-            <button on:click={() => {
+            <button in:fade on:click={() => {
                 updateCurrentFolder(folderId);
             }} class="
                 p-2 flex rounded-xl items-center transition

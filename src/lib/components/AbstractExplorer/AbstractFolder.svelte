@@ -40,19 +40,21 @@
     { /key }
 
     <!-- Children -->
-    { #if contents.length > 0 && isChildrenShown }
+    { #if isChildrenShown }
         <div class="pl-5">
-            <div class="my-1">
-                { #each contents as entity }
-                    { #if entity.type == EntityType.FOLDER }
-                        <svelte:component this={folderComponent} folder={entity} contents={getFolderContents(entity)} {afterFolderContentsComponent} />
-                    { :else if entity.type == EntityType.DOCUMENT }
-                        { @const document = documentTypedGuard(entity) }
+            { #if contents.length > 0 }
+                <div class="my-1">
+                    { #each contents as entity }
+                        { #if entity.type == EntityType.FOLDER }
+                            <svelte:component this={folderComponent} folder={entity} contents={getFolderContents(entity)} {afterFolderContentsComponent} />
+                        { :else if entity.type == EntityType.DOCUMENT }
+                            { @const document = documentTypedGuard(entity) }
 
-                        <svelte:component this={documentComponent} {document} />
-                    { /if }
-                { /each }
-            </div>
+                            <svelte:component this={documentComponent} {document} />
+                        { /if }
+                    { /each }
+                </div>
+            { /if }
 
             { #if afterFolderContentsComponent != null }
                 <svelte:component this={afterFolderContentsComponent} folderId={id} />
