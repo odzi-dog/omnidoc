@@ -8,7 +8,6 @@
     <title>odzi docs - { data.title }</title>
 </svelte:head>
 
-<!-- todo -->
 { #key data.id }
     <slot />
 { /key }

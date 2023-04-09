@@ -1,4 +1,4 @@
-import type { Centrifuge, Subscription } from "centrifuge";
+import { State, type Centrifuge, type Subscription } from "centrifuge";
 import { writable } from "svelte/store";
 
 import * as Events from './SynchronizationStore/events';
@@ -46,6 +46,10 @@ class StoreClass {
             object.state = state;
             return object;
         });
+    };
+
+    public getClientInstance(): Centrifuge | null {
+        return this.client?.state == State.Connected ? this.client : null;
     };
 
     public addListeners() {

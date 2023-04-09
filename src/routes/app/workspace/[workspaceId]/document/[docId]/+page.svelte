@@ -8,33 +8,72 @@
     import CarbonSettings from '~icons/carbon/settings';
     import CarbonHome from '~icons/carbon/home';
     import CarbonChevronRight from '~icons/carbon/chevron-right';
+    import CarbonCursor2 from '~icons/carbon/cursor-2';
 
     import { CurrentDocumentStore, CurrentWorkspaceStore } from '$lib/stores/Application';
     import { subscribe as subscribeToDocumentChanges, unsubscribe as unsubscribeFromDocumentChanges } from './_subscriptions';
 	import type { Unsubscriber } from 'svelte/store';
 	import { RoundedIconButton } from '$lib/components/Buttons';
+	import { getFolderLocation, gotoWorkspacePage } from '$lib/helpers/workspace';
+
+    import { onMouseMove } from './_events';
 
     import * as SectionsImport from './sections';
-	import { getFolderLocation, gotoWorkspacePage } from '$lib/helpers/workspace';
+	import { SynchronizationStore, SynchronizationStoreState } from '$lib/stores/Synchronization.store';
+	import type { CollaboratorJoinEvent } from '$lib/synchronization';
+	import { getStore } from '$lib/helpers/getStore';
+	import type { UserData } from 'lucia-auth';
+	import { UserStore } from '$lib/stores/User.store';
+	import type { User } from '$lib/auth';
+	import { State } from 'centrifuge';
     const Sections = Object.values(SectionsImport);
     
+    let rootElement: HTMLDivElement;
+
     onMount(async () => {
         // Loading our document information into our CurrentDocumentStore
         CurrentDocumentStore.loadFromFlatObject(data);
 
-        let unsubscribe: Unsubscriber;
-        unsubscribe = CurrentDocumentStore.subscribe((object) => {
-            if (object != null) {
-                subscribeToDocumentChanges();
-                if (unsubscribe != null) unsubscribe();
-            };
-        });
+        const user = await getStore<UserData>(UserStore) as User;
+        
+        // Subscribing to store events
+        {
+            let unsubscribe: Unsubscriber;
+            unsubscribe = CurrentDocumentStore.subscribe(async (object) => {
+                if (object != null) {
+                    subscribeToDocumentChanges();
+                    if (unsubscribe != null) unsubscribe();
+                };
+            });
+        }
+
+        // Sending CollaboratorJoin event
+        {
+            let unsubscribe: Unsubscriber;
+            let wasJoinEventSent = false;
+
+            unsubscribe = SynchronizationStore.subscribe((object) => {
+                if (object?.state == SynchronizationStoreState.CONNECTED && wasJoinEventSent == false) {
+                    wasJoinEventSent = true;
+
+                    SynchronizationStore.getClientInstance()?.publish(`documentCollaboratorAction-${ data.id }`, {
+                        type: 'join',
+                        
+                        id: user.userId
+                    } as CollaboratorJoinEvent);
+                };
+
+                if (unsubscribe) unsubscribe();
+            })
+        }
     });
 
     onDestroy(async () => {
         if ($CurrentDocumentStore != null) {
             await unsubscribeFromDocumentChanges();
         };
+
+        // Sending CollaboratorLeave event
 
         CurrentDocumentStore.clear();
     });
@@ -63,7 +102,21 @@
     export let data: PageData;
 </script>
 
-<div in:fade class="w-full h-full pt-4">
+<div
+    on:mousemove={(event) => onMouseMove($CurrentDocumentStore, event)}
+    in:fade class="w-full h-full pt-4"
+>
+    <!-- Collaborator mouses -->
+    { #each $CurrentDocumentStore?.collaborators ?? [] as collaborator }
+        <div class="z-50 absolute flex items-center" style="top: { collaborator.mouse.y }px; left: { collaborator.mouse.x }px;">
+            <CarbonCursor2 class="w-6 h-6 text-blue-400" />
+
+            <div class="ml-1.5 rounded-xl bg-blue-400 px-1 py-0.5">
+                <p class="text-xs">{ collaborator.id }</p>
+            </div>
+        </div>
+    { /each }
+
     <!-- Header -->
     <header class="w-full flex items-center justify-between">
 

@@ -19,7 +19,7 @@
     export let document: DocumentHandler;
 </script>
 
-<div class="w-full my-1">
+<div in:fade class="w-full my-1">
     <!-- Header -->
     <button class="
         flex items-center text-gray-400 w-full rounded-xl p-1 group transition 
