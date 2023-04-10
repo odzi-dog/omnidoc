@@ -5,6 +5,7 @@
 	import type { LayoutData } from './$types';
 	import LoggedInLayout from '$lib/components/Layout/LoggedInLayout.svelte';
 	import { UserStore } from '$lib/stores/User.store';
+	import GuestLayout from '$lib/components/Layout/GuestLayout.svelte';
 	
 	export let data: LayoutData;
 
@@ -16,5 +17,7 @@
 		<slot />
 	</LoggedInLayout>
 { :else }
-	<slot />
+	<GuestLayout>
+		<slot />
+	</GuestLayout>
 { /if }

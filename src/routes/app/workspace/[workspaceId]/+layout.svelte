@@ -4,19 +4,22 @@
     import { onDestroy, onMount } from "svelte";
 	import { goto } from "$app/navigation";
     import { subscribe as subscribeToWorkspaceChanges, unsubscribe as unsubscribeFromWorkspaceChanges } from "./_subscriptions";
+    import { UserStore } from "$lib/stores/User.store";
 
     onMount(async () => {
-        // Getting information about current workspace
-        await CurrentWorkspaceStore.fetchById($page.params.workspaceId)
-            .catch(() => {
-                goto("/app");
-            });
+        if ($UserStore) {
+            // Getting information about current workspace
+            await CurrentWorkspaceStore.fetchById($page.params.workspaceId)
+                .catch(() => {
+                    goto("/app");
+                });
 
-        await subscribeToWorkspaceChanges();
+            await subscribeToWorkspaceChanges();
+        };
     });
 
     onDestroy(async () => {
-        await unsubscribeFromWorkspaceChanges();
+        if ($UserStore) await unsubscribeFromWorkspaceChanges();
 
         CurrentWorkspaceStore.clear();
     });

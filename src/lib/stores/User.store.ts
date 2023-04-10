@@ -16,6 +16,8 @@ class StoreClass {
 
     async loadFromFlatObject(user: User) {
         console.log("user store:", user);
+        if (Object.keys(user).length == 0) return;
+        
         this._update(() => {
             return user;
         });

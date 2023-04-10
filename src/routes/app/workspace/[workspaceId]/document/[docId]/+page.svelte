@@ -21,55 +21,52 @@
     import * as SectionsImport from './sections';
 	import { SynchronizationStore, SynchronizationStoreState } from '$lib/stores/Synchronization.store';
 	import type { CollaboratorJoinEvent } from '$lib/synchronization';
-	import { getStore } from '$lib/helpers/getStore';
-	import type { UserData } from 'lucia-auth';
 	import { UserStore } from '$lib/stores/User.store';
 	import type { User } from '$lib/auth';
-	import { State } from 'centrifuge';
-    const Sections = Object.values(SectionsImport);
+	const Sections = Object.values(SectionsImport);
     
-    let rootElement: HTMLDivElement;
-
     onMount(async () => {
         // Loading our document information into our CurrentDocumentStore
         CurrentDocumentStore.loadFromFlatObject(data);
 
-        const user = await getStore<UserData>(UserStore) as User;
-        
-        // Subscribing to store events
-        {
-            let unsubscribe: Unsubscriber;
-            unsubscribe = CurrentDocumentStore.subscribe(async (object) => {
-                if (object != null) {
-                    subscribeToDocumentChanges();
-                    if (unsubscribe != null) unsubscribe();
-                };
-            });
-        }
+        if ($UserStore) {
+            const user = $UserStore as User;
+            
+            // Subscribing to store events
+            {
+                let unsubscribe: Unsubscriber;
+                unsubscribe = CurrentDocumentStore.subscribe(async (object) => {
+                    if (object != null) {
+                        subscribeToDocumentChanges();
+                        if (unsubscribe != null) unsubscribe();
+                    };
+                });
+            }
 
-        // Sending CollaboratorJoin event
-        {
-            let unsubscribe: Unsubscriber;
-            let wasJoinEventSent = false;
+            // Sending CollaboratorJoin event
+            {
+                let unsubscribe: Unsubscriber;
+                let wasJoinEventSent = false;
 
-            unsubscribe = SynchronizationStore.subscribe((object) => {
-                if (object?.state == SynchronizationStoreState.CONNECTED && wasJoinEventSent == false) {
-                    wasJoinEventSent = true;
+                unsubscribe = SynchronizationStore.subscribe((object) => {
+                    if (object?.state == SynchronizationStoreState.CONNECTED && wasJoinEventSent == false) {
+                        wasJoinEventSent = true;
 
-                    SynchronizationStore.getClientInstance()?.publish(`documentCollaboratorAction-${ data.id }`, {
-                        type: 'join',
-                        
-                        id: user.userId
-                    } as CollaboratorJoinEvent);
-                };
+                        SynchronizationStore.getClientInstance()?.publish(`documentCollaboratorAction-${ data.id }`, {
+                            type: 'join',
+                            
+                            id: user.userId
+                        } as CollaboratorJoinEvent);
+                    };
 
-                if (unsubscribe) unsubscribe();
-            })
-        }
+                    if (unsubscribe) unsubscribe();
+                })
+            }
+        };
     });
 
     onDestroy(async () => {
-        if ($CurrentDocumentStore != null) {
+        if ($CurrentDocumentStore != null && $UserStore) {
             await unsubscribeFromDocumentChanges();
         };
 
@@ -99,60 +96,68 @@
         }
     ]
 
+    $: isGuestLayout = $UserStore == null;
     export let data: PageData;
 </script>
 
 <div
-    on:mousemove={(event) => onMouseMove($CurrentDocumentStore, event)}
+    on:mousemove={(event) => {
+        if (!isGuestLayout) onMouseMove($CurrentDocumentStore, event)
+    }}
     in:fade class="w-full h-full pt-4"
 >
     <!-- Collaborator mouses -->
-    { #each $CurrentDocumentStore?.collaborators ?? [] as collaborator }
-        <div class="z-50 absolute flex items-center" style="top: { collaborator.mouse.y }px; left: { collaborator.mouse.x }px;">
-            <CarbonCursor2 class="w-6 h-6 text-blue-400" />
+    { #if !isGuestLayout }
+        { #each $CurrentDocumentStore?.collaborators ?? [] as collaborator }
+            <div class="z-50 absolute flex items-center" style="top: { collaborator.mouse.y }px; left: { collaborator.mouse.x }px;">
+                <CarbonCursor2 class="w-6 h-6 text-blue-400" />
 
-            <div class="ml-1.5 rounded-xl bg-blue-400 px-1 py-0.5">
-                <p class="text-xs">{ collaborator.id }</p>
+                <div class="ml-1.5 rounded-xl bg-blue-400 px-1 py-0.5">
+                    <p class="text-xs">{ collaborator.id }</p>
+                </div>
             </div>
-        </div>
-    { /each }
+        { /each }
+    { /if }
 
     <!-- Header -->
     <header class="w-full flex items-center justify-between">
-
-        <div class="flex items-center">
-            <RoundedIconButton on:click={() => {
-                gotoWorkspacePage("/explorer");
-            }} style="dark" icon={CarbonHome} class="text-gray-300 mr-4" />
+        { #if isGuestLayout }
+            <!-- todo -->
+        { :else }
+            <div class="flex items-center">
+                <RoundedIconButton on:click={() => {
+                    gotoWorkspacePage("/explorer");
+                }} style="dark" icon={CarbonHome} class="text-gray-300 mr-4" />
+                
+                <!-- Hierarchy -->
+                { #if data.folder }
+                    { #each getFolderLocation($CurrentWorkspaceStore?.hierarchy ?? new Map(), data.folder) as folderId }
+                        <button class="
+                            p-2 flex rounded-xl items-center transition
+                            hover:bg-zinc-800
+                        ">
+                            <p class="text-gray-300 text-sm">{ $CurrentWorkspaceStore?.entities.get(folderId)?.title }</p>
+                        </button>
             
-            <!-- Hierarchy -->
-            { #if data.folder }
-                { #each getFolderLocation($CurrentWorkspaceStore?.hierarchy ?? new Map(), data.folder) as folderId }
-                    <button class="
-                        p-2 flex rounded-xl items-center transition
-                        hover:bg-zinc-800
-                    ">
-                        <p class="text-gray-300 text-sm">{ $CurrentWorkspaceStore?.entities.get(folderId)?.title }</p>
-                    </button>
-        
-                    { #if folderId != data.folder }
-                        <CarbonChevronRight class="mx-0.5 w-4 h-4 text-gray-300" />
-                    { /if }
-                { /each }
-            { /if }
-        </div>
+                        { #if folderId != data.folder }
+                            <CarbonChevronRight class="mx-0.5 w-4 h-4 text-gray-300" />
+                        { /if }
+                    { /each }
+                { /if }
+            </div>
 
-        <!-- Control buttons -->
-        <div class="flex items-center gap-2">
-            <!-- History -->
-            <RoundedIconButton icon={CarbonStatusChange} />
-            
-            <!-- Share -->
-            <RoundedIconButton icon={CarbonShare} />
+            <!-- Control buttons -->
+            <div class="flex items-center gap-2">
+                <!-- History -->
+                <RoundedIconButton icon={CarbonStatusChange} />
+                
+                <!-- Share -->
+                <RoundedIconButton icon={CarbonShare} />
 
-            <!-- More settings -->
-            <RoundedIconButton icon={CarbonSettings} />
-        </div>
+                <!-- More settings -->
+                <RoundedIconButton icon={CarbonSettings} />
+            </div>
+        { /if }
     </header>
 
     <!-- Document content -->
