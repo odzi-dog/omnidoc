@@ -15,6 +15,7 @@
 	import type { Unsubscriber } from 'svelte/store';
 	import { RoundedIconButton } from '$lib/components/Buttons';
 	import { getFolderLocation, gotoWorkspacePage } from '$lib/helpers/workspace';
+	import { DocumentEditorContext } from './_context';
 
     import { onMouseMove } from './_events';
 
@@ -29,9 +30,17 @@
         // Loading our document information into our CurrentDocumentStore
         CurrentDocumentStore.loadFromFlatObject(data);
 
+        // Default editor context values
+        DocumentEditorContext.setDefaults();
+
         if ($UserStore) {
             const user = $UserStore as User;
             
+            // todo
+            // take user permissions into account
+            // Updating our context information
+            DocumentEditorContext.updateContext({ isEditable: true });
+
             // Subscribing to store events
             {
                 let unsubscribe: Unsubscriber;
@@ -109,7 +118,7 @@
     <!-- Collaborator mouses -->
     { #if !isGuestLayout }
         { #each $CurrentDocumentStore?.collaborators ?? [] as collaborator }
-            <div class="z-50 absolute flex items-center" style="top: { collaborator.mouse.y }px; left: { collaborator.mouse.x }px;">
+            <div class="pointer-events-none z-50 absolute flex items-center" style="top: { collaborator.mouse.y }px; left: { collaborator.mouse.x }px;">
                 <CarbonCursor2 class="w-6 h-6 text-blue-400" />
 
                 <div class="ml-1.5 rounded-xl bg-blue-400 px-1 py-0.5">
