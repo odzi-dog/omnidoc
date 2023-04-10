@@ -1,15 +1,18 @@
 import type { DocumentListChangeEvent } from '$lib/synchronization';
-import { AfterCreate, AfterUpdate, Entity, ManyToOne, PrimaryKey, Property, type EventArgs } from '@mikro-orm/core';
+import { AfterCreate, AfterUpdate, Entity, ManyToOne, PrimaryKey, Property, type EventArgs, BeforeCreate } from '@mikro-orm/core';
 import { v4 } from 'uuid';
 import { Workspace } from '../Workspaces';
 import { WorkspaceFolder } from './Folder';
 import { ServerSynchronizationClient } from '$lib/database/SynchronizationInstance';
 import { State } from 'centrifuge';
+import { pack as serializedAndMinify, unpack } from 'msgpackr';
+import type { DocumentBody } from '$lib/editor';
 
 // urgh
-export interface FlatWorkspaceDocument extends Omit<WorkspaceDocument, "workspace" | "folder" | "flatten" | "propagateCreateEvent" | "propagateUpdateEvent"> {
+export interface FlatWorkspaceDocument extends Omit<WorkspaceDocument, "workspace" | "folder" | "flatten" | "setDefaultBody" | "propagateCreateEvent" | "propagateUpdateEvent" | "body"> {
     workspace: string,
     folder?: string,
+    content: DocumentBody,
 };
 
 @Entity()
@@ -21,7 +24,7 @@ export class WorkspaceDocument {
     title!: string;
 
     @Property({ nullable: true })
-    body?: string;
+    body?: Buffer;
 
     @ManyToOne()
     workspace!: Workspace;
@@ -39,8 +42,28 @@ export class WorkspaceDocument {
     public flatten(): FlatWorkspaceDocument {
         return {
             ...this,
+            body: undefined,
+            content: this.body ? unpack(this.body) : [],
             workspace: this.workspace.id,
             folder: this.folder?.id,
+        };
+    };
+
+    @BeforeCreate()
+    public async setDefaultBody({ entity }: EventArgs<WorkspaceDocument>) {
+        if (entity.body == null) {
+            const body = [
+                {
+                    id: "0",
+                    type: "text",
+                    payload: {
+                        content: "Hello there!"
+                    }
+                }
+            ];
+            
+            // Setting default body
+            entity.body = serializedAndMinify(body);
         };
     };
 

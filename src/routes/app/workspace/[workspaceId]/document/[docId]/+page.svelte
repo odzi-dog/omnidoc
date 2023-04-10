@@ -16,6 +16,7 @@
 	import { RoundedIconButton } from '$lib/components/Buttons';
 	import { getFolderLocation, gotoWorkspacePage } from '$lib/helpers/workspace';
 	import { DocumentEditorContext } from './_context';
+    import SectionWrapper from './sections/SectionWrapper.svelte';
 
     import { onMouseMove } from './_events';
 
@@ -25,13 +26,10 @@
 	import { UserStore } from '$lib/stores/User.store';
 	import type { User } from '$lib/auth';
 	const Sections = Object.values(SectionsImport);
-    
+
     onMount(async () => {
         // Loading our document information into our CurrentDocumentStore
         CurrentDocumentStore.loadFromFlatObject(data);
-
-        // Default editor context values
-        DocumentEditorContext.setDefaults();
 
         if ($UserStore) {
             const user = $UserStore as User;
@@ -39,7 +37,7 @@
             // todo
             // take user permissions into account
             // Updating our context information
-            DocumentEditorContext.updateContext({ isEditable: true });
+            DocumentEditorContext.updateContext({ isEditable: true, content: data.content });
 
             // Subscribing to store events
             {
@@ -83,27 +81,6 @@
 
         CurrentDocumentStore.clear();
     });
-
-    const sections = [
-        {
-            type: "text",
-            payload: {
-                content: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Minus molestiae maiores officia at cumque velit mollitia iste, ut eius distinctio vero facilis omnis et adipisci quia illo quibusdam quisquam molestias consectetur eum eos quos. Veniam quibusdam ipsum molestiae nemo quod quis necessitatibus quisquam placeat, fuga, similique sit corporis illo dignissimos et vitae. Dignissimos voluptatem natus nulla incidunt, voluptas iusto nemo laudantium sit, deserunt facilis aliquid. Corporis maiores porro ipsum, est quisquam molestiae, iusto laborum consequatur impedit praesentium mollitia nemo quos eius! Incidunt unde excepturi quod consequuntur cumque accusantium! Repellat adipisci, suscipit velit magni tempore excepturi? Impedit cupiditate tempore rem ea!"
-            },
-        },
-        {
-            type: "text",
-            payload: {
-                content: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Minus molestiae maiores officia at cumque velit mollitia iste, ut eius distinctio vero facilis omnis et adipisci quia illo quibusdam quisquam molestias consectetur eum eos quos. Veniam quibusdam ipsum molestiae nemo quod quis necessitatibus quisquam placeat, fuga, similique sit corporis illo dignissimos et vitae. Dignissimos voluptatem natus nulla incidunt, voluptas iusto nemo laudantium sit, deserunt facilis aliquid. Corporis maiores porro ipsum, est quisquam molestiae, iusto laborum consequatur impedit praesentium mollitia nemo quos eius! Incidunt unde excepturi quod consequuntur cumque accusantium! Repellat adipisci, suscipit velit magni tempore excepturi? Impedit cupiditate tempore rem ea!"
-            },
-        },
-        {
-            type: "text",
-            payload: {
-                content: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Minus molestiae maiores officia at cumque velit mollitia iste, ut eius distinctio vero facilis omnis et adipisci quia illo quibusdam quisquam molestias consectetur eum eos quos. Veniam quibusdam ipsum molestiae nemo quod quis necessitatibus quisquam placeat, fuga, similique sit corporis illo dignissimos et vitae. Dignissimos voluptatem natus nulla incidunt, voluptas iusto nemo laudantium sit, deserunt facilis aliquid. Corporis maiores porro ipsum, est quisquam molestiae, iusto laborum consequatur impedit praesentium mollitia nemo quos eius! Incidunt unde excepturi quod consequuntur cumque accusantium! Repellat adipisci, suscipit velit magni tempore excepturi? Impedit cupiditate tempore rem ea!"
-            },
-        }
-    ]
 
     $: isGuestLayout = $UserStore == null;
     export let data: PageData;
@@ -170,19 +147,21 @@
     </header>
 
     <!-- Document content -->
-    <div class="p-12">
+    <div class="py-12">
         <!-- Document header section -->
-        <section class="mb-8">
+        <section class="mb-8 px-16">
             <h1 class="text-4xl text-white">{ data.title }</h1>
             <p class="text-md text-gray-400">Lorem ipsum dolor sit amet.</p>
         </section>
 
         <!-- All other document sections -->
-        { #each sections as section }
+        { #each $DocumentEditorContext.content ?? data.content as section }
             { @const SectionComponent = Sections.find((x) => x.type == section.type) }
         
             { #if SectionComponent != null }
-                <svelte:component this={SectionComponent.component} payload={section.payload} />
+                <SectionWrapper>
+                    <svelte:component this={SectionComponent.component} id={section.id} payload={section.payload} />
+                </SectionWrapper>
             { /if }
         { /each }
     </div>

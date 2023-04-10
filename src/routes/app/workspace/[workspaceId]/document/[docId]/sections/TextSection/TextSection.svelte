@@ -2,12 +2,16 @@
 	import { DocumentEditorContext } from "../../_context";
 	import type { TextSectionPayload } from "./types";
 
-    $: isEditable = DocumentEditorContext.getContext().isEditable;
+    function handleOnInput(event: InputEvent & { currentTarget: EventTarget & HTMLDivElement }) {
+        DocumentEditorContext.updateSection(id, {
+            content: event.currentTarget.innerHTML,
+        });
+    };
+
+    $: isEditable = $DocumentEditorContext.isEditable;
+    
+    export let id: string;
     export let payload: TextSectionPayload;
 </script>
 
-{ #if isEditable }
-    <!-- todo -->
-{ :else }
-    <p class="text-gray-200 my-2">{ payload.content }</p>
-{ /if }
+<div on:input={handleOnInput} class="text-gray-200 my-2" spellcheck="false" contenteditable={isEditable}>{ payload.content }</div>

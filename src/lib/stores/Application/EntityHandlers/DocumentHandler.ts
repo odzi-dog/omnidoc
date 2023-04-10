@@ -1,5 +1,6 @@
 import type { FlatWorkspaceDocument } from "$lib/database/entities";
 import EntityType from "$lib/database/entities/EntityType";
+import type { DocumentBody } from "$lib/editor";
 import { getStore } from "$lib/helpers/getStore";
 
 export enum DocumentHandlerHooks {
@@ -13,9 +14,9 @@ export class DocumentHandler implements FlatWorkspaceDocument {
 
     public id: string;
     public title: string;
-    public body?: string;
     public workspace: string;
     public folder?: string;
+    public content: DocumentBody;
 
     public hooks: HooksMap = new Map();
     
@@ -23,7 +24,7 @@ export class DocumentHandler implements FlatWorkspaceDocument {
         // Do I really need to do it like this?...
         this.id = document.id;
         this.title = document.title;
-        this.body = document.body;
+        this.content = document.content;
         this.workspace = document.workspace;
         this.folder = document.folder;
 
