@@ -27,6 +27,14 @@
 	import type { User } from '$lib/auth';
 	const Sections = Object.values(SectionsImport);
 
+    function selectSection(id: string) {
+        const element = document.querySelector(`#${id} .section-input`);
+        if (!element) return;
+
+        // @ts-ignore
+        element.focus();
+    };
+
     onMount(async () => {
         // Loading our document information into our CurrentDocumentStore
         CurrentDocumentStore.loadFromFlatObject(data);
@@ -159,15 +167,19 @@
             { @const SectionComponent = Sections.find((x) => x.type == section.type) }
         
             { #if SectionComponent != null }
-                <SectionWrapper>
-                    <svelte:component 
+                <SectionWrapper id={section.id}>
+                    <svelte:component
                         this={SectionComponent.component} id={section.id} payload={section.payload}
-                        on:addEmptySection={() => {
+                        on:addEmptySection={async () => {
                             // Adding empty text section
-                            DocumentEditorContext.addEmptySection();
+                            const newSectionId = await DocumentEditorContext.addEmptySection();
 
-                            // todo
                             // Moving cursor to this new section
+                            selectSection(newSectionId);
+                        }}
+                        on:selectSection={(event) => {
+                            // Finding this element
+                            selectSection(event.detail.id);
                         }}
                     />
                 </SectionWrapper>
