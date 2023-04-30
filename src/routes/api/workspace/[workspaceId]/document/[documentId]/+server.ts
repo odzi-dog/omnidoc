@@ -2,7 +2,10 @@ import { getDatabase } from "$lib/database";
 import { Workspace, WorkspaceDocument } from "$lib/database/entities";
 import { error } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
-import { pack } from "msgpackr";
+import { pack, unpack } from "msgpackr";
+import sanitizeHtml from "sanitize-html";
+import type { DocumentBody } from "$lib/editor";
+import type { AllSections } from "$lib/editor/types/AllSections.type";
 
 async function fetchWorkspaceAndDocument(workspaceId: string, documentId: string): Promise<{ workspace: Workspace, document: WorkspaceDocument }> {
     const db = getDatabase();
@@ -29,18 +32,31 @@ export const DELETE: RequestHandler = async ({ params: { workspaceId, documentId
     return new Response(JSON.stringify(document.flatten()));
 };
 
-export const POST: RequestHandler = async ({ params: { workspaceId, documentId }, request }) => {
+export const POST: RequestHandler = async ({ params: { workspaceId, documentId }, request, url: { searchParams } }) => {
     const db = getDatabase();
     const { document } = await fetchWorkspaceAndDocument(workspaceId, documentId);
 
     // Todo
     // add isAuthorized guard
-    const body = await request.json();
+    const sectionId = searchParams.get("sectionId");
+    const section: AllSections = await request.json();
+
+    if (sectionId == null) throw error(400, "Invalid sectionId");
+
+    if (section.type == "text") {
+        // Sanitizing
+        section.payload.content = sanitizeHtml(section.payload.content);
+    };
 
     // Todo
     // Checking if our body is of right json schema 
+    const unpackedBody: DocumentBody = document.body == undefined ? [] : unpack(document.body);
+    const sectionsMap = new Map();
 
-    document.body = pack(body);
+    unpackedBody.forEach((section) => sectionsMap.set(section.id, section));
+    sectionsMap.set(section.id, section);
+
+    document.body = pack([...sectionsMap.values()]);
     await db.persistAndFlush(document);
 
     return new Response(JSON.stringify(document.flatten()));

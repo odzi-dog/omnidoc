@@ -160,7 +160,16 @@
         
             { #if SectionComponent != null }
                 <SectionWrapper>
-                    <svelte:component this={SectionComponent.component} id={section.id} payload={section.payload} />
+                    <svelte:component 
+                        this={SectionComponent.component} id={section.id} payload={section.payload}
+                        on:addEmptySection={() => {
+                            // Adding empty text section
+                            DocumentEditorContext.addEmptySection();
+
+                            // todo
+                            // Moving cursor to this new section
+                        }}
+                    />
                 </SectionWrapper>
             { /if }
         { /each }

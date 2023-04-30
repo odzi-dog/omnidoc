@@ -11,7 +11,7 @@
     </div>
 
     <!-- Content -->
-    <main class="h-full overflow-y-scroll w-5/6 py-2 px-6">
+    <main class="h-full overflow-y-auto w-5/6 py-2 px-6">
         <slot />
     </main>
 </div>

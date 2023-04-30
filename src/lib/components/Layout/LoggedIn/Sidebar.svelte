@@ -26,7 +26,7 @@
     { /if }
 
     <!-- Content -->
-    <div class="relative flex-grow mt-4 p-1 overflow-y-scroll">
+    <div class="relative flex-grow mt-4 p-1 overflow-y-auto">
         { #if $ApplicationStore.workspaces == null || ($page.url.pathname.startsWith("/app/workspace/") && $CurrentWorkspaceStore == null) }
             <div class="flex items-center mt-4 gap-4">
                 <Placeholder class="w-2/3 h-5" />
